@@ -479,10 +479,18 @@ docker-compose up --build
 
 ---
 
-### 1-Click Local & Offline Launcher (PowerShell)
+### 1-Click Windows Launchers (.bat & .ps1)
 
-On Windows, launch both the FastAPI backend and React frontend concurrently with a single command:
+On Windows, launch both the FastAPI backend and React frontend concurrently with a single command or double-click:
 
+#### Option A: Windows Batch Launcher (Recommended for CMD / Double-Click)
+Double-click `run_offline.bat` or execute in Command Prompt:
+```cmd
+run_offline.bat
+```
+
+#### Option B: Windows PowerShell Launcher
+Run in PowerShell terminal:
 ```powershell
 .\run_offline.ps1
 ```
@@ -497,40 +505,74 @@ On Windows, launch both the FastAPI backend and React frontend concurrently with
 
 ---
 
-### Manual Backend Installation
+### Step-by-Step Instructions to Run AI Models & Local Setup
 
+#### Step 1: Clone Repository & Install Dependencies
 ```bash
-# 1. Navigate to backend directory
-cd backend
+# Clone repository
+git clone https://github.com/Sakthikumaran63/paperlens-atlas.git
+cd paperlens-atlas
 
-# 2. Create and activate virtual environment
+# Install Backend dependencies
+cd backend
 python -m venv venv
-# On Windows:
+# On Windows CMD / PowerShell:
 .\venv\Scripts\activate
 # On Linux/macOS:
 source venv/bin/activate
-
-# 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Start the FastAPI development server
-python -m uvicorn app.main:app --reload --port 8000 --host 127.0.0.1
-```
-
----
-
-### Manual Frontend Installation
-
-```bash
-# 1. Navigate to frontend directory
-cd frontend
-
-# 2. Install dependencies
+# Install Frontend dependencies
+cd ../frontend
 npm install
-
-# 3. Start the Vite development server
-npm run dev
 ```
+
+#### Step 2: Configure AI Model Engines & Environment Variables
+Copy `backend/.env.example` to `backend/.env`:
+
+##### 1. Primary AI Engine (Google Gemini 4-Key Rotation):
+PaperLens supports multi-key round-robin rotation with 4-tier model cascade (`gemini-flash-latest` → `gemini-3.5-flash` → `gemini-2.5-flash-preview-05-20` → `gemini-2.5-flash-lite-preview-06-17`):
+```env
+GEMINI_API_KEY=your_primary_gemini_key
+GEMINI_API_KEYS=key_1,key_2,key_3,key_4
+GEMINI_MODEL=gemini-flash-latest
+```
+
+##### 2. Local AI Engine (Offline Fallback / Ollama):
+To run fully offline with local model inference, PaperLens uses local extractive RAG by default or integrates with local Ollama:
+```env
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+```
+To run Ollama locally:
+```bash
+# Install Ollama from https://ollama.com, then pull Llama 3.2 model:
+ollama pull llama3.2
+```
+
+##### 3. Database Selection (Supabase Cloud vs Offline SQLite):
+- **Cloud PostgreSQL (Production)**:
+  ```env
+  DATABASE_URL=postgresql+asyncpg://postgres:Password@db.wuacpjaxqjmmhpnyibdo.supabase.co:5432/postgres
+  ```
+- **Local SQLite (Offline Development)**:
+  ```env
+  DATABASE_URL=sqlite+aiosqlite:///./paperlens_v2.db
+  ```
+
+#### Step 3: Run the Application & Model Service
+- **1-Click Launch**: Double-click `run_offline.bat` or run `.\run_offline.ps1`
+- **Manual Launch**:
+  - **Terminal 1 (Backend API & AI Router)**:
+    ```bash
+    cd backend
+    python -m uvicorn app.main:app --reload --port 8000 --host 0.0.0.0
+    ```
+  - **Terminal 2 (Frontend App)**:
+    ```bash
+    cd frontend
+    npm run dev
+    ```
 
 ---
 
