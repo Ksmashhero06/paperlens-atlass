@@ -14,9 +14,19 @@ class Settings(BaseSettings):
     def assemble_db_connection(cls, v: str) -> str:
         if isinstance(v, str):
             if v.startswith("postgres://"):
-                return v.replace("postgres://", "postgresql+asyncpg://", 1)
-            if v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
-                return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+                v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
+                v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+            if v.startswith("postgresql"):
+                try:
+                    from urllib.parse import urlparse
+                    import socket
+                    parsed_host = urlparse(v).hostname
+                    if parsed_host and parsed_host not in ("localhost", "127.0.0.1", "db"):
+                        socket.gethostbyname(parsed_host)
+                except Exception:
+                    return "sqlite+aiosqlite:///./paperlens_v2.db"
         return v
     CORS_ORIGINS: List[str] = ["*"]
     SECRET_KEY: str = "paperlens_secret_key_change_in_production_secure_789456123"
