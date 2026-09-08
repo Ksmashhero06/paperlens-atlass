@@ -13,7 +13,7 @@ echo Starting Frontend on http://localhost:8080 ...
 start "PaperLens Frontend" cmd /k "cd /d "%REPO_ROOT%frontend" && npm run dev"
 
 echo Starting Backend on http://localhost:8000 ...
-start "PaperLens Backend" cmd /k "cd /d "%REPO_ROOT%backend" && python -c "import socket; socket.gethostbyname('db.wuacpjaxqjmmhpnyibdo.supabase.co')" 2>nul || set DATABASE_URL=sqlite+aiosqlite:///./paperlens_v2.db && python -m uvicorn app.main:app --reload --port 8000 --host 127.0.0.1"
+start "PaperLens Backend" cmd /k "cd /d "%REPO_ROOT%backend" && (if exist .venv\Scripts\activate.bat call .venv\Scripts\activate.bat) && (python -c "import socket; socket.gethostbyname('db.wuacpjaxqjmmhpnyibdo.supabase.co')" 2>nul || set DATABASE_URL=sqlite+aiosqlite:///./paperlens_v2.db) && python -m uvicorn app.main:app --reload --port 8000 --host 127.0.0.1"
 
 echo.
 echo PaperLens Application Started!

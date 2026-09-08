@@ -1,32 +1,31 @@
 {
-  "current_objective": "Created run_offline.bat launcher and updated README.md with detailed AI model execution steps",
-  "last_updated": "2026-09-08T22:59:45+05:30",
+  "current_objective": "Created backend/.venv isolated Python virtual environment with all required dependencies installed",
+  "last_updated": "2026-09-08T23:14:55+05:30",
   "steps_completed": [
     {
       "step_number": 1,
-      "timestamp": "2026-09-08T22:59:25+05:30",
-      "action": "Created run_offline.bat launcher script",
-      "finding": "Created 1-click Windows Command Prompt / Double-Click launcher script with non-blocking process creation and automatic DB fallback."
+      "timestamp": "2026-09-08T23:12:20+05:30",
+      "action": "Created virtual environment at backend/.venv",
+      "finding": "Executed python -m venv .venv in backend directory."
     },
     {
       "step_number": 2,
-      "timestamp": "2026-09-08T22:59:38+05:30",
-      "action": "Updated README.md section 12",
-      "finding": "Documented run_offline.bat alongside run_offline.ps1 and provided step-by-step guidelines to configure and run AI models (Gemini API rotation, local Ollama / rule-based extractive fallback, and database selection)."
+      "timestamp": "2026-09-08T23:14:39+05:30",
+      "action": "Installed all requirements in backend/.venv",
+      "finding": "Installed FastAPI, Uvicorn, SQLAlchemy, Pydantic, PyMuPDF, AsyncPG, Pytest, PyJWT, and all 20+ project requirements into .venv."
     },
     {
       "step_number": 3,
-      "timestamp": "2026-09-08T22:59:45+05:30",
-      "action": "Verified script execution",
-      "finding": "run_offline.bat executed cleanly with exit code 0."
+      "timestamp": "2026-09-08T23:14:45+05:30",
+      "action": "Verified uvicorn execution",
+      "finding": "backend/.venv/Scripts/python.exe -m uvicorn --version verified running uvicorn 0.52.4."
     }
   ],
   "active_files": [
+    "backend/.venv",
     "run_offline.bat",
     "run_offline.ps1",
-    "README.md",
-    ".agent_log.json",
-    ".agent_journal.json"
+    "README.md"
   ],
-  "next_step": "Commit and push updated files to GitHub repository."
+  "next_step": "Inform user of .venv creation and how to use it."
 }

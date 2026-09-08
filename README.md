@@ -505,74 +505,56 @@ Run in PowerShell terminal:
 
 ---
 
-### Step-by-Step Instructions to Run AI Models & Local Setup
+### Quick Start Execution Guide
 
-#### Step 1: Clone Repository & Install Dependencies
-```bash
-# Clone repository
-git clone https://github.com/Sakthikumaran63/paperlens-atlas.git
-cd paperlens-atlas
-
-# Install Backend dependencies
+#### Create Virtual Environment:
+```powershell
 cd backend
-python -m venv venv
-# On Windows CMD / PowerShell:
-.\venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
+python -m venv .venv
+.\.venv\Scripts\activate
+```
+
+#### Install Dependencies:
+```bash
+# Backend dependencies
 pip install -r requirements.txt
 
-# Install Frontend dependencies
+# Frontend dependencies
 cd ../frontend
 npm install
 ```
 
-#### Step 2: Configure AI Model Engines & Environment Variables
-Copy `backend/.env.example` to `backend/.env`:
+#### Set Up Environment:
+Ensure the backend environment is configured with `backend/.env` (copied from `backend/.env.example`). PaperLens Atlas automatically manages service configuration and fallbacks:
+- **Backend REST API**: Configured to run on `http://localhost:8000` (`http://127.0.0.1:8000`).
+- **Frontend Application**: Configured to run on `http://localhost:8080` (or `http://localhost:5173`).
+- **Resilient Database Fallback**: Automatically switches to local SQLite (`paperlens_v2.db`) when Supabase Cloud host is offline.
+- **AI Model Cascade**: Configured with Google Gemini 4-key API rotation (`PL_01`–`PL_04`) and local Ollama (`llama3.2`) / extractive RAG fallback.
 
-##### 1. Primary AI Engine (Google Gemini 4-Key Rotation):
-PaperLens supports multi-key round-robin rotation with 4-tier model cascade (`gemini-flash-latest` → `gemini-3.5-flash` → `gemini-2.5-flash-preview-05-20` → `gemini-2.5-flash-lite-preview-06-17`):
-```env
-GEMINI_API_KEY=your_primary_gemini_key
-GEMINI_API_KEYS=key_1,key_2,key_3,key_4
-GEMINI_MODEL=gemini-flash-latest
-```
+#### Run the Application:
 
-##### 2. Local AI Engine (Offline Fallback / Ollama):
-To run fully offline with local model inference, PaperLens uses local extractive RAG by default or integrates with local Ollama:
-```env
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3.2
-```
-To run Ollama locally:
-```bash
-# Install Ollama from https://ollama.com, then pull Llama 3.2 model:
-ollama pull llama3.2
-```
-
-##### 3. Database Selection (Supabase Cloud vs Offline SQLite):
-- **Cloud PostgreSQL (Production)**:
-  ```env
-  DATABASE_URL=postgresql+asyncpg://postgres:Password@db.wuacpjaxqjmmhpnyibdo.supabase.co:5432/postgres
+##### Option A: 1-Click Windows Launchers (Recommended)
+- **Command Prompt (`cmd`) / Double-Click**:
+  ```cmd
+  run_offline.bat
   ```
-- **Local SQLite (Offline Development)**:
-  ```env
-  DATABASE_URL=sqlite+aiosqlite:///./paperlens_v2.db
+- **PowerShell**:
+  ```powershell
+  .\run_offline.ps1
   ```
 
-#### Step 3: Run the Application & Model Service
-- **1-Click Launch**: Double-click `run_offline.bat` or run `.\run_offline.ps1`
-- **Manual Launch**:
-  - **Terminal 1 (Backend API & AI Router)**:
-    ```bash
-    cd backend
-    python -m uvicorn app.main:app --reload --port 8000 --host 0.0.0.0
-    ```
-  - **Terminal 2 (Frontend App)**:
-    ```bash
-    cd frontend
-    npm run dev
-    ```
+##### Option B: Manual Terminal Execution
+- **Terminal 1 (Backend API & AI Router)**:
+  ```powershell
+  cd backend
+  .\.venv\Scripts\activate
+  python -m uvicorn app.main:app --reload --port 8000 --host 127.0.0.1
+  ```
+- **Terminal 2 (Frontend React Application)**:
+  ```powershell
+  cd frontend
+  npm run dev
+  ```
 
 ---
 
