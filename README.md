@@ -479,17 +479,21 @@ docker-compose up --build
 
 ---
 
-### 1-Click Offline Launcher (PowerShell)
+### 1-Click Local & Offline Launcher (PowerShell)
 
-On Windows, launch both backend and frontend servers with a single command:
+On Windows, launch both the FastAPI backend and React frontend concurrently with a single command:
 
 ```powershell
 .\run_offline.ps1
 ```
 
-- **Frontend**: `http://localhost:8080` (or `http://localhost:5173`)
-- **Backend API**: `http://localhost:8000`
-- **Swagger Docs**: `http://localhost:8000/docs`
+**Script Capabilities & Automatic Safeguards:**
+- **Automatic Multi-Process Launch**: Spawns concurrent, non-blocking terminal sessions for frontend (`npm run dev`) and backend (`uvicorn app.main:app`).
+- **Resilient Database Fallback**: Automatically tests cloud database connectivity; if internet or Supabase DNS is unreachable, seamlessly switches to local SQLite (`paperlens_v2.db`).
+- **Live Local Endpoints**:
+  - **Frontend Application**: `http://localhost:8080` (or `http://localhost:5173`)
+  - **Backend REST API**: `http://localhost:8000`
+  - **Interactive Swagger Docs**: `http://localhost:8000/docs`
 
 ---
 
