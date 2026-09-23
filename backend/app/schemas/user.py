@@ -20,8 +20,12 @@ class UserResponse(BaseModel):
     email: str
     name: Optional[str] = None
     is_admin: bool = False
+    is_active: bool = True
     provider: str = "email"
+    picture: Optional[str] = None
+    last_login_at: Optional[datetime] = None
     created_at: datetime
+    analyses_count: int = 0
 
     class Config:
         from_attributes = True
@@ -32,4 +36,9 @@ class OAuthLoginRequest(BaseModel):
     email: EmailStr
     name: Optional[str] = None
     provider_id: Optional[str] = None
+    picture: Optional[str] = None
+
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool
 

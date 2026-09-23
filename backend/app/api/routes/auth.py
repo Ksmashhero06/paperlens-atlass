@@ -89,6 +89,7 @@ async def oauth_login(
     OAuth login & registration endpoint for Google and Microsoft.
     Auto-registers new users, sets is_admin=True for kkssakthikumaran@gmail.com.
     """
+    from datetime import datetime, timezone
     email_clean = oauth_in.email.lower().strip()
     stmt = select(User).where(User.email == email_clean)
     result = await db.execute(stmt)
@@ -103,7 +104,10 @@ async def oauth_login(
             name=oauth_in.name,
             provider=oauth_in.provider.lower(),
             provider_id=oauth_in.provider_id,
+            picture=oauth_in.picture,
             is_admin=is_admin_user,
+            is_active=True,
+            last_login_at=datetime.now(timezone.utc),
             hashed_password=None
         )
         db.add(user)
@@ -118,11 +122,19 @@ async def oauth_login(
         await db.commit()
         await db.refresh(user)
     else:
-        # Update existing user provider if needed and ensure admin status
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your account has been deactivated. Please contact administrator."
+            )
+        # Update login timestamp & picture
+        user.last_login_at = datetime.now(timezone.utc)
+        if oauth_in.picture:
+            user.picture = oauth_in.picture
         if is_admin_user and not user.is_admin:
             user.is_admin = True
-            await db.commit()
-            await db.refresh(user)
+        await db.commit()
+        await db.refresh(user)
 
     access_token = create_access_token(subject=user.id)
     _set_auth_cookie(response, access_token)
@@ -139,6 +151,7 @@ async def login(
     user_in: UserLogin,
     db: AsyncSession = Depends(get_db)
 ) -> Token:
+    from datetime import datetime, timezone
     email_clean = user_in.email.lower().strip()
     stmt = select(User).where(User.email == email_clean)
     result = await db.execute(stmt)
@@ -151,11 +164,18 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Ensure admin flag for kkssakthikumaran@gmail.com
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account has been deactivated. Please contact administrator."
+        )
+
+    user.last_login_at = datetime.now(timezone.utc)
     if email_clean == ADMIN_EMAIL.lower() and not user.is_admin:
         user.is_admin = True
-        await db.commit()
-        await db.refresh(user)
+
+    await db.commit()
+    await db.refresh(user)
 
     access_token = create_access_token(subject=user.id)
     _set_auth_cookie(response, access_token)
