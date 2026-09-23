@@ -635,4 +635,3 @@ Copyright © 2026 PaperLens Team. All rights reserved.
 | **Dark & Light Mode** | Full theme management with `theme.ts` utility, `localStorage` persistence, and `TopBar` Sun/Moon switcher button. |
 | **OKLCH Dark Palette** | Deep charcoal background (`#161514`), elevated card surface (`#201E1C`), and glowing terracotta accents (`#E07A5F`). |
 | **Vercel Build Fix** | Tracked `src/lib/theme.ts` module to ensure clean production builds on Vercel (`UNLOADABLE_DEPENDENCY` fix). |
-
