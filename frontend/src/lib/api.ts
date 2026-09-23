@@ -3,7 +3,7 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_URL ||
-  "http://localhost:8000/api/v1";
+  "/api/v1";
 
 
 
@@ -21,23 +21,21 @@ export interface PaperUploadResponse {
   status: "UPLOADED" | "PROCESSING" | "READY" | "FAILED";
 }
 
+export interface PipelineStageDetail {
+  stage: string;
+  label: string;
+  description: string;
+  status: "completed" | "active" | "pending" | "failed";
+}
+
 export interface PaperStatusResponse {
   paper_id: string;
   status: "UPLOADED" | "PROCESSING" | "READY" | "FAILED";
-  stage:
-    | "UPLOADING"
-    | "EXTRACTING"
-    | "STRUCTURING"
-    | "CHUNKING"
-    | "EMBEDDING"
-    | "ANALYZING"
-    | "READY"
-    | "FAILED";
+  stage: string;
   progress: number;
-  stages_detail?: Record<
-    string,
-    { status: string; start_time?: string; end_time?: string; error?: string }
-  >;
+  stage_index?: number;
+  current_stage_label?: string;
+  stages_detail?: PipelineStageDetail[] | Record<string, any>;
   processing_error?: string;
 }
 
@@ -528,19 +526,48 @@ export async function getPaperRecommendations(
   return await handleResponse<PaperRecommendationsResponse>(resp);
 }
 
-export async function searchPaperRecommendations(
-  title: string,
-  limit: number = 5
-): Promise<PaperRecommendationsResponse> {
-  const headers = await getAuthHeaders();
-  const resp = await fetch(
-    `${API_BASE_URL}/papers/recommendations/search?title=${encodeURIComponent(title)}&limit=${limit}`,
-    {
-      headers,
-      credentials: "include",
-    }
-  );
-  return await handleResponse<PaperRecommendationsResponse>(resp);
+export interface UserAnalysisItem {
+  id: string;
+  paper_id: string;
+  paper_title: string;
+  authors?: string;
+  year?: number;
+  analyzed_at: string;
+  questions_count: number;
+  status: string;
+  stage: string;
+  summary: string;
+  recent_question?: string;
 }
+
+export async function getUserAnalyses(): Promise<UserAnalysisItem[]> {
+  const headers = await getAuthHeaders();
+  const resp = await fetch(`${API_BASE_URL}/user/analyses`, {
+    headers,
+    credentials: "include",
+  });
+  return await handleResponse<UserAnalysisItem[]>(resp);
+}
+
+export async function getAdminPapers(): Promise<any[]> {
+  const headers = await getAuthHeaders();
+  const resp = await fetch(`${API_BASE_URL}/admin/papers`, {
+    headers,
+    credentials: "include",
+  });
+  return await handleResponse<any[]>(resp);
+}
+
+export async function getAdminActivity(): Promise<any[]> {
+  const headers = await getAuthHeaders();
+  const resp = await fetch(`${API_BASE_URL}/admin/activity`, {
+    headers,
+    credentials: "include",
+  });
+  return await handleResponse<any[]>(resp);
+}
+
+
+
 
 

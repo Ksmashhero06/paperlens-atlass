@@ -11,8 +11,9 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
-import { NotFoundView } from "./404";
+import { NotFoundView } from "./-404";
 import { ErrorState } from "@/components/app/states/StatePanels";
+import { AuthProvider } from "@/lib/auth-context";
 
 function NotFoundComponent() {
   return <NotFoundView />;
@@ -51,25 +52,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "PaperLens — Read research papers with clarity" },
+      { title: "PaperAtlas — AI Research Assistant & Grounded Citations" },
       {
         name: "description",
         content:
-          "PaperLens is an AI research assistant that helps students and academics understand papers, extract methodology, and ask grounded questions.",
+          "PaperAtlas is an AI research assistant that helps students and academics analyze papers, extract methodology, ask grounded questions, and store research privately in Google Drive AppData.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "PaperLens — Read research papers with clarity" },
+      { property: "og:title", content: "PaperAtlas — AI Research Assistant & Grounded Citations" },
       {
         property: "og:description",
         content:
-          "PaperLens is an AI research assistant that helps students and academics understand papers, extract methodology, and ask grounded questions.",
+          "PaperAtlas is an AI research assistant with grounded citations and private user-owned Google Drive AppData persistence.",
       },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "PaperLens — Read research papers with clarity" },
+      { name: "twitter:title", content: "PaperAtlas — AI Research Assistant" },
       {
         name: "twitter:description",
         content:
-          "PaperLens is an AI research assistant that helps students and academics understand papers, extract methodology, and ask grounded questions.",
+          "PaperAtlas is an AI research assistant with grounded citations and private user-owned Google Drive AppData persistence.",
       },
       {
         property: "og:image",
@@ -110,7 +111,6 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
       <body>
         {children}
@@ -131,13 +131,15 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster
-        position="top-right"
-        richColors={false}
-        closeButton
-        mobileOffset={{ bottom: "16px" }}
-      />
+      <AuthProvider>
+        <Outlet />
+        <Toaster
+          position="top-right"
+          richColors={false}
+          closeButton
+          mobileOffset={{ bottom: "16px" }}
+        />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

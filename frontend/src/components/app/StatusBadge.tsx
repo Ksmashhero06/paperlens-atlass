@@ -1,51 +1,50 @@
-import type { PaperStatus } from "@/lib/mock-papers";
+import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const map: Record<string, { label: string; cls: string; dot: string }> = {
-  ready: {
-    label: "Ready",
-    cls: "text-[color:var(--sage)] bg-[color:color-mix(in_oklab,var(--sage)_15%,transparent)]",
-    dot: "bg-[color:var(--sage)]",
-  },
-  processing: {
-    label: "Processing",
-    cls: "text-[color:var(--ochre)] bg-[color:color-mix(in_oklab,var(--ochre)_18%,transparent)]",
-    dot: "bg-[color:var(--ochre)]",
-  },
-  uploading: {
-    label: "Uploading",
-    cls: "text-[color:var(--ochre)] bg-[color:color-mix(in_oklab,var(--ochre)_18%,transparent)]",
-    dot: "bg-[color:var(--ochre)]",
-  },
-  indexing: {
-    label: "Indexing",
-    cls: "text-[color:var(--ochre)] bg-[color:color-mix(in_oklab,var(--ochre)_18%,transparent)]",
-    dot: "bg-[color:var(--ochre)]",
-  },
-  failed: {
-    label: "Failed",
-    cls: "text-destructive bg-destructive/10",
-    dot: "bg-destructive",
-  },
-  unknown: {
-    label: "Unknown",
-    cls: "text-muted-foreground bg-muted",
-    dot: "bg-muted-foreground",
-  },
-};
+export interface StatusBadgeProps {
+  status?: string;
+  className?: string;
+}
 
-export function StatusBadge({ status }: { status: PaperStatus | string }) {
-  const key = (status ?? "unknown").toString().toLowerCase();
-  const s = map[key] ?? map["unknown"];
+export function StatusBadge({ status, className }: StatusBadgeProps) {
+  const norm = (status || "").toLowerCase();
+  if (norm === "ready" || norm === "completed") {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
+          className
+        )}
+      >
+        <CheckCircle2 className="h-3 w-3" />
+        Ready
+      </span>
+    );
+  }
+  if (norm === "processing" || norm === "analyzing" || norm === "uploading") {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400 border border-amber-500/20 animate-pulse",
+          className
+        )}
+      >
+        <Clock className="h-3 w-3 animate-spin" />
+        Processing
+      </span>
+    );
+  }
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium",
-        s.cls,
+        "inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive border border-destructive/20",
+        className
       )}
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", s.dot)} />
-      {s.label}
+      <AlertTriangle className="h-3 w-3" />
+      Failed
     </span>
   );
 }
+
+export default StatusBadge;

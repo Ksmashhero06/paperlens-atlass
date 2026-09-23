@@ -36,8 +36,13 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
     }
   }, [isOpen]);
 
+  const isPrimaryAdmin = (email: string) => {
+    const clean = email.toLowerCase().trim();
+    return clean === "ksmfrom2006@gmail.com" || clean === "kkssakthikumaran@gmail.com" || clean.includes("admin");
+  };
+
   const handleToggleStatus = async (userId: string, currentStatus: boolean, email: string) => {
-    if (email.toLowerCase() === "kkssakthikumaran@gmail.com") {
+    if (isPrimaryAdmin(email)) {
       toast.error("Primary Administrator account status cannot be changed.");
       return;
     }
@@ -52,7 +57,7 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
   };
 
   const handleDeleteUser = async (userId: string, email: string) => {
-    if (email.toLowerCase() === "kkssakthikumaran@gmail.com") {
+    if (isPrimaryAdmin(email)) {
       toast.error("Primary Administrator account cannot be deleted.");
       return;
     }

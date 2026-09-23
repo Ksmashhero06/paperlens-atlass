@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutGrid,
@@ -7,17 +7,14 @@ import {
   Clock,
   Settings,
   LifeBuoy,
-  User,
   ShieldCheck,
-  LogIn,
-  LogOut,
+  HardDrive,
   type LucideIcon,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
-import { AuthModal } from "./AuthModal";
 import { AdminModal } from "./AdminModal";
-import { toast } from "sonner";
+import { useAuth } from "@/lib/auth-context";
 
 interface Item {
   label: string;
@@ -29,12 +26,12 @@ const primary: Item[] = [
   { label: "Overview", to: "/dashboard", icon: LayoutGrid },
   { label: "My Papers", to: "/papers", icon: Library },
   { label: "Upload Paper", to: "/upload", icon: UploadCloud },
-  { label: "Recent Activity", to: "/activity", icon: Clock },
+  { label: "Analysis History", to: "/activity", icon: Clock },
 ];
 
 const secondary: Item[] = [
-  { label: "Settings", to: "/settings", icon: Settings },
-  { label: "Help", to: "/help", icon: LifeBuoy },
+  { label: "Settings & Vault", to: "/settings", icon: Settings },
+  { label: "Help & Docs", to: "/help", icon: LifeBuoy },
 ];
 
 function NavRow({ item, active }: { item: Item; active: boolean }) {
@@ -67,53 +64,15 @@ function NavRow({ item, active }: { item: Item; active: boolean }) {
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const [authOpen, setAuthOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
-
-  useEffect(() => {
-    // Hydrate user profile from server session via httpOnly cookie / token
-    import("@/lib/api").then(({ getMe }) => {
-      getMe()
-        .then((user) => {
-          if (user && user.email) {
-            setCurrentUser(user);
-          }
-        })
-        .catch(() => {
-          // If unauthenticated, check cached user as fallback
-          if (typeof window !== "undefined") {
-            const cached = localStorage.getItem("paperlens_user");
-            if (cached) {
-              try {
-                setCurrentUser(JSON.parse(cached));
-              } catch {
-                setCurrentUser(null);
-              }
-            }
-          }
-        });
-    });
-  }, []);
-
-  const handleLogout = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const { logoutUser } = await import("@/lib/api");
-    await logoutUser();
-    setCurrentUser(null);
-    toast.success("Signed out successfully");
-    window.location.reload();
-  };
+  const { user: currentUser } = useAuth();
 
   const isActive = (to: string) =>
     to === "/dashboard" ? pathname === "/dashboard" || pathname === "/" : pathname.startsWith(to);
 
-  const isAdmin = currentUser?.email?.toLowerCase() === "kkssakthikumaran@gmail.com" || currentUser?.is_admin;
   const initials = currentUser?.name
     ? currentUser.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
-    : currentUser?.email
-    ? currentUser.email.slice(0, 2).toUpperCase()
-    : "G";
+    : "RA";
 
   return (
     <>
@@ -137,19 +96,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </div>
 
         <div className="border-t border-border px-3 py-4 space-y-2">
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setAdminOpen(true);
-              }}
-              className="flex w-full items-center gap-2.5 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
-            >
-              <ShieldCheck className="h-4 w-4" />
-              <span>Admin Panel</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setAdminOpen(true);
+            }}
+            className="flex w-full items-center gap-2.5 rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            <span>Workspace Metrics</span>
+          </button>
 
           <nav className="space-y-0.5">
             {secondary.map((item) => (
@@ -157,62 +114,27 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             ))}
           </nav>
 
-          {currentUser ? (
-            <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-left">
-              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-border bg-surface text-[11px] font-semibold tracking-wide text-foreground uppercase">
-                {initials}
-              </div>
-              <div className="min-w-0 flex-1 leading-tight">
-                <div className="truncate text-xs font-medium text-foreground">
-                  {currentUser.name || currentUser.email.split("@")[0]}
-                </div>
-                <div className="truncate text-[10px] text-muted-foreground">
-                  {currentUser.email}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleLogout}
-                title="Sign Out"
-                className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
-              >
-                <LogOut className="h-4 w-4 shrink-0" />
-              </button>
+          <Link
+            to="/settings"
+            className="flex items-center gap-2.5 rounded-md border border-border bg-background px-3 py-2 text-left hover:border-primary/40 transition-colors"
+          >
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary text-[11px] font-semibold tracking-wide text-primary-foreground uppercase">
+              {initials}
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setAuthOpen(true);
-              }}
-              className="flex w-full items-center gap-3 rounded-md border border-border bg-background px-3 py-2.5 transition-colors hover:bg-muted text-left"
-            >
-              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-border bg-surface text-[11px] font-semibold tracking-wide text-foreground uppercase">
-                ?
+            <div className="min-w-0 flex-1 leading-tight">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="truncate text-xs font-semibold text-foreground">
+                  {currentUser.name}
+                </span>
               </div>
-              <div className="min-w-0 flex-1 leading-tight">
-                <div className="truncate text-xs font-medium text-foreground">
-                  Guest User
-                </div>
-                <div className="truncate text-[10px] font-semibold text-primary">
-                  Sign In / Register
-                </div>
+              <div className="flex items-center gap-1 truncate text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                <HardDrive className="h-2.5 w-2.5" />
+                <span>Local Storage Vault</span>
               </div>
-              <LogIn className="h-4 w-4 text-primary shrink-0" />
-            </button>
-          )}
+            </div>
+          </Link>
         </div>
       </aside>
-
-      <AuthModal
-        isOpen={authOpen}
-        onClose={() => setAuthOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          localStorage.setItem("paperlens_user", JSON.stringify(user));
-        }}
-      />
 
       <AdminModal
         isOpen={adminOpen}
@@ -221,5 +143,3 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     </>
   );
 }
-
-

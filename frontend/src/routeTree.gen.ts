@@ -10,23 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as R404RouteImport } from './routes/404'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as HelpRouteImport } from './routes/help'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PapersRouteImport } from './routes/papers'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as UploadRouteImport } from './routes/upload'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as PaperIdRouteImport } from './routes/paper.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const R404Route = R404RouteImport.update({
-  id: '/404',
-  path: '/404',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ActivityRoute = ActivityRouteImport.update({
@@ -39,9 +35,14 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HelpRoute = HelpRouteImport.update({
-  id: '/help',
-  path: '/help',
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PapersRoute = PapersRouteImport.update({
@@ -59,6 +60,11 @@ const UploadRoute = UploadRouteImport.update({
   path: '/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PaperIdRoute = PaperIdRouteImport.update({
   id: '/paper/$id',
   path: '/paper/$id',
@@ -67,83 +73,90 @@ const PaperIdRoute = PaperIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/404': typeof R404Route
   '/activity': typeof ActivityRoute
   '/dashboard': typeof DashboardRoute
-  '/help': typeof HelpRoute
+  '/history': typeof HistoryRoute
+  '/login': typeof LoginRoute
   '/papers': typeof PapersRoute
   '/settings': typeof SettingsRoute
   '/upload': typeof UploadRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/paper/$id': typeof PaperIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/404': typeof R404Route
   '/activity': typeof ActivityRoute
   '/dashboard': typeof DashboardRoute
-  '/help': typeof HelpRoute
+  '/history': typeof HistoryRoute
+  '/login': typeof LoginRoute
   '/papers': typeof PapersRoute
   '/settings': typeof SettingsRoute
   '/upload': typeof UploadRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/paper/$id': typeof PaperIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/404': typeof R404Route
   '/activity': typeof ActivityRoute
   '/dashboard': typeof DashboardRoute
-  '/help': typeof HelpRoute
+  '/history': typeof HistoryRoute
+  '/login': typeof LoginRoute
   '/papers': typeof PapersRoute
   '/settings': typeof SettingsRoute
   '/upload': typeof UploadRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/paper/$id': typeof PaperIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/404'
     | '/activity'
     | '/dashboard'
-    | '/help'
+    | '/history'
+    | '/login'
     | '/papers'
     | '/settings'
     | '/upload'
+    | '/auth/callback'
     | '/paper/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/404'
     | '/activity'
     | '/dashboard'
-    | '/help'
+    | '/history'
+    | '/login'
     | '/papers'
     | '/settings'
     | '/upload'
+    | '/auth/callback'
     | '/paper/$id'
   id:
     | '__root__'
     | '/'
-    | '/404'
     | '/activity'
     | '/dashboard'
-    | '/help'
+    | '/history'
+    | '/login'
     | '/papers'
     | '/settings'
     | '/upload'
+    | '/auth/callback'
     | '/paper/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  R404Route: typeof R404Route
   ActivityRoute: typeof ActivityRoute
   DashboardRoute: typeof DashboardRoute
-  HelpRoute: typeof HelpRoute
+  HistoryRoute: typeof HistoryRoute
+  LoginRoute: typeof LoginRoute
   PapersRoute: typeof PapersRoute
   SettingsRoute: typeof SettingsRoute
   UploadRoute: typeof UploadRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   PaperIdRoute: typeof PaperIdRoute
 }
 
@@ -154,13 +167,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/404': {
-      id: '/404'
-      path: '/404'
-      fullPath: '/404'
-      preLoaderRoute: typeof R404RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/activity': {
@@ -177,11 +183,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/help': {
-      id: '/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpRouteImport
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/papers': {
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UploadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/paper/$id': {
       id: '/paper/$id'
       path: '/paper/$id'
@@ -217,13 +237,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  R404Route: R404Route,
   ActivityRoute: ActivityRoute,
   DashboardRoute: DashboardRoute,
-  HelpRoute: HelpRoute,
+  HistoryRoute: HistoryRoute,
+  LoginRoute: LoginRoute,
   PapersRoute: PapersRoute,
   SettingsRoute: SettingsRoute,
   UploadRoute: UploadRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   PaperIdRoute: PaperIdRoute,
 }
 export const routeTree = rootRouteImport
@@ -231,11 +252,10 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
+import type { createStart } from '@tanstack/react-start'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

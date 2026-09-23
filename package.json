@@ -1,13 +1,21 @@
 {
-  "name": "paperlens",
+  "name": "paperlens-atlas",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "dev": "cd frontend && bun run dev",
-    "build": "cd frontend && bun run build",
-    "build:dev": "cd frontend && bun run build:dev",
-    "preview": "cd frontend && bun run preview",
-    "lint": "cd frontend && bun run lint",
-    "format": "cd frontend && bun run format"
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "start": "node server.ts",
+    "preview": "npm run preview --workspace=frontend",
+    "lint": "npm run lint --workspace=frontend"
+  },
+  "dependencies": {
+    "@google/genai": "^2.4.0",
+    "@supabase/supabase-js": "^2.117.0",
+    "firebase": "^12.19.0"
   }
 }
