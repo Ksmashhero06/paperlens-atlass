@@ -461,6 +461,20 @@ export async function deleteAdminUser(userId: string): Promise<void> {
   }
 }
 
+export async function updateAdminUserStatus(userId: string, isActive: boolean): Promise<any> {
+  const headers = await getAuthHeaders();
+  const resp = await fetch(`${API_BASE_URL}/admin/users/${userId}/status`, {
+    method: "PATCH",
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ is_active: isActive }),
+    credentials: "include",
+  });
+  return await handleResponse<any>(resp);
+}
+
 export async function getPaperChatHistory(paperId: string): Promise<QuestionAnsweringResponse[]> {
   const headers = await getAuthHeaders();
   const resp = await fetch(`${API_BASE_URL}/papers/${paperId}/chat-history`, {

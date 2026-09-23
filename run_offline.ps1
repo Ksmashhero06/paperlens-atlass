@@ -2,17 +2,17 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host " Starting PaperLens Application Locally " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
-$RepoRoot = Get-Location
+$RepoRoot = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 
 Write-Host "Cleaning up any existing process on port 8000..." -ForegroundColor Yellow
 Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
 
 Write-Host "Starting Frontend on http://localhost:8080 ..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot\frontend'; npm run dev"
+Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", "cd '$RepoRoot\frontend'; npm run dev"
 
 Write-Host "Starting Backend on http://localhost:8000 ..." -ForegroundColor Green
-$BackendCmd = "cd '$RepoRoot\backend'; if (Test-Path '.venv\Scripts\Activate.ps1') { .\.venv\Scripts\Activate.ps1 }; try { python -c `"import socket; socket.gethostbyname('db.wuacpjaxqjmmhpnyibdo.supabase.co')`" 2>`$null } catch { Write-Host 'Cloud DB unreachable, falling back to local SQLite database...' -ForegroundColor Yellow; `$env:DATABASE_URL='sqlite+aiosqlite:///./paperlens_v2.db' }; python -m uvicorn app.main:app --reload --port 8000 --host 127.0.0.1"
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "$BackendCmd"
+$BackendCmd = "cd '$RepoRoot\backend'; if (Test-Path '.venv\Scripts\Activate.ps1') { .\.venv\Scripts\Activate.ps1 }; python -m uvicorn app.main:app --reload --port 8000 --host 127.0.0.1"
+Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-Command", "$BackendCmd"
 
 Write-Host "PaperLens Application Started!" -ForegroundColor Yellow
 Write-Host "Frontend: http://localhost:8080" -ForegroundColor White
