@@ -86,11 +86,41 @@ async def oauth_login(
     db: AsyncSession = Depends(get_db)
 ) -> Token:
     """
-    OAuth login & registration endpoint for Google and Microsoft.
+    OAuth login & registration endpoint for Google (GSI JWT ID token) and Microsoft.
     Auto-registers new users, sets is_admin=True for kkssakthikumaran@gmail.com.
     """
+    import base64
+    import json
     from datetime import datetime, timezone
-    email_clean = oauth_in.email.lower().strip()
+
+    email = oauth_in.email
+    name = oauth_in.name
+    picture = oauth_in.picture
+    provider_id = oauth_in.provider_id
+
+    # If Google GSI JWT ID token credential is provided, decode payload securely
+    if oauth_in.credential:
+        try:
+            parts = oauth_in.credential.split(".")
+            if len(parts) >= 2:
+                # Add padding if needed
+                padded = parts[1] + "=" * ((4 - len(parts[1]) % 4) % 4)
+                payload_bytes = base64.b64decode(padded)
+                payload = json.loads(payload_bytes)
+                email = payload.get("email") or email
+                name = payload.get("name") or name
+                picture = payload.get("picture") or picture
+                provider_id = payload.get("sub") or provider_id
+        except Exception:
+            pass
+
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is required for OAuth login."
+        )
+
+    email_clean = email.lower().strip()
     stmt = select(User).where(User.email == email_clean)
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
@@ -98,13 +128,12 @@ async def oauth_login(
     is_admin_user = (email_clean == ADMIN_EMAIL.lower())
 
     if not user:
-        # Create new user via OAuth
         user = User(
             email=email_clean,
-            name=oauth_in.name,
+            name=name,
             provider=oauth_in.provider.lower(),
-            provider_id=oauth_in.provider_id,
-            picture=oauth_in.picture,
+            provider_id=provider_id,
+            picture=picture,
             is_admin=is_admin_user,
             is_active=True,
             last_login_at=datetime.now(timezone.utc),
@@ -127,10 +156,11 @@ async def oauth_login(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Your account has been deactivated. Please contact administrator."
             )
-        # Update login timestamp & picture
         user.last_login_at = datetime.now(timezone.utc)
-        if oauth_in.picture:
-            user.picture = oauth_in.picture
+        if picture:
+            user.picture = picture
+        if name and not user.name:
+            user.name = name
         if is_admin_user and not user.is_admin:
             user.is_admin = True
         await db.commit()

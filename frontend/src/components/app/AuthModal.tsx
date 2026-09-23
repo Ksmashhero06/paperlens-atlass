@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,63 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [oauthEmail, setOauthEmail] = useState("");
   const [oauthName, setOauthName] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Initialize Google Identity Services (GSI) button & callback handler
+  useEffect(() => {
+    if (!isOpen) return;
+    const clientId =
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      "1012345678900-samplegoogleclientid.apps.googleusercontent.com";
+
+    const handleCredentialResponse = async (response: any) => {
+      if (!response?.credential) return;
+      setLoading(true);
+      try {
+        const res = await oauthLogin(
+          "google",
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          response.credential
+        );
+        localStorage.setItem("paperlens_access_token", res.access_token ?? "");
+        localStorage.setItem("paperlens_user", JSON.stringify(res.user));
+        toast.success("Signed in with Google Identity!");
+        onSuccess(res.user);
+        resetAndClose();
+      } catch (err: any) {
+        toast.error(err.message || "Google Identity authentication failed.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if ((window as any).google?.accounts?.id) {
+        try {
+          (window as any).google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleCredentialResponse,
+          });
+          const container = document.getElementById("g_id_signin_container");
+          if (container) {
+            (window as any).google.accounts.id.renderButton(container, {
+              type: "standard",
+              theme: "outline",
+              size: "medium",
+              text: "signin_with",
+              width: "100%",
+            });
+          }
+        } catch (e) {
+          console.warn("Google GSI render notice:", e);
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
 
 
   const resetAndClose = () => {
@@ -200,28 +257,32 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              type="button"
-              disabled={loading}
-              onClick={() => { setView("oauth-google"); setOauthEmail(""); setOauthName(""); }}
-              className="flex items-center justify-center gap-2 border-border py-2 text-xs font-medium"
-            >
-              {googleIcon}
-              Google
-            </Button>
+          <div className="space-y-2">
+            <div id="g_id_signin_container" className="min-h-[40px] flex items-center justify-center"></div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant="outline"
+                type="button"
+                disabled={loading}
+                onClick={() => { setView("oauth-google"); setOauthEmail(""); setOauthName(""); }}
+                className="flex items-center justify-center gap-2 border-border py-2 text-xs font-medium"
+              >
+                {googleIcon}
+                Google (Email)
+              </Button>
 
-            <Button
-              variant="outline"
-              type="button"
-              disabled={loading}
-              onClick={() => { setView("oauth-microsoft"); setOauthEmail(""); setOauthName(""); }}
-              className="flex items-center justify-center gap-2 border-border py-2 text-xs font-medium"
-            >
-              {msIcon}
-              Microsoft
-            </Button>
+              <Button
+                variant="outline"
+                type="button"
+                disabled={loading}
+                onClick={() => { setView("oauth-microsoft"); setOauthEmail(""); setOauthName(""); }}
+                className="flex items-center justify-center gap-2 border-border py-2 text-xs font-medium"
+              >
+                {msIcon}
+                Microsoft
+              </Button>
+            </div>
           </div>
 
           <div className="relative my-3 text-center text-xs">

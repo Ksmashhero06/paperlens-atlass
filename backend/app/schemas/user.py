@@ -33,10 +33,11 @@ class UserResponse(BaseModel):
 
 class OAuthLoginRequest(BaseModel):
     provider: str  # "google" or "microsoft"
-    email: EmailStr
+    email: Optional[EmailStr] = None
     name: Optional[str] = None
     provider_id: Optional[str] = None
     picture: Optional[str] = None
+    credential: Optional[str] = None  # Google GSI JWT ID token
 
 
 class UserStatusUpdate(BaseModel):

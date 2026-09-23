@@ -529,4 +529,28 @@ export async function searchPaperRecommendations(
   return await handleResponse<PaperRecommendationsResponse>(resp);
 }
 
+export async function oauthLogin(
+  provider: "google" | "microsoft",
+  email?: string,
+  name?: string,
+  providerId?: string,
+  picture?: string,
+  credential?: string
+): Promise<any> {
+  const resp = await fetch(`${API_BASE_URL}/auth/oauth`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      provider,
+      email,
+      name,
+      provider_id: providerId,
+      picture,
+      credential,
+    }),
+    credentials: "include",
+  });
+  return await handleResponse<any>(resp);
+}
+
 
