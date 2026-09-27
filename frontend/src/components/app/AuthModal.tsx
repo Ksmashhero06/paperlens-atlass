@@ -31,9 +31,16 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   // Initialize Google Identity Services (GSI) button & callback handler
   useEffect(() => {
     if (!isOpen) return;
+    const isConfigured = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
     const clientId =
       import.meta.env.VITE_GOOGLE_CLIENT_ID ||
       "1012345678900-samplegoogleclientid.apps.googleusercontent.com";
+
+    if (!isConfigured) {
+      toast.warning("VITE_GOOGLE_CLIENT_ID is missing in frontend/.env. Set your Google Cloud Client ID to enable OAuth login.", {
+        duration: 6000,
+      });
+    }
 
     const handleCredentialResponse = async (response: any) => {
       if (!response?.credential) return;
