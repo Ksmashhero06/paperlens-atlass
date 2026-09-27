@@ -22,7 +22,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isResearcher: boolean;
   isConfigured: boolean;
-  driveSyncStatus: "connected"; // Backwards compatibility for existing UI components
+  driveSyncStatus: "connected" | "disconnected";
   driveError: null;
   updateProfile: (updates: Partial<LocalResearcherUser>) => void;
   signOut: () => Promise<void>;
@@ -33,7 +33,7 @@ interface AuthContextType {
 }
 
 const DEFAULT_USER: LocalResearcherUser = {
-  id: "researcher-local-01",
+  id: "usr-kumaran",
   name: "Kumaran Sathiyamoorthi",
   email: "kumaran.6373707@gmail.com",
   institution: "Computer Science & AI Institute",
@@ -42,12 +42,23 @@ const DEFAULT_USER: LocalResearcherUser = {
   last_active: "Active Now",
 };
 
+const GUEST_USER: LocalResearcherUser = {
+  id: "guest-researcher",
+  name: "Guest Researcher",
+  email: "",
+  institution: "Local Private Storage",
+  specialty: "Document Search & Q&A",
+  role: "researcher",
+  last_active: "Signed Out",
+};
+
 const LOCAL_USER_KEY = "paperatlas_researcher_profile";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<LocalResearcherUser>(DEFAULT_USER);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -55,7 +66,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const cached = localStorage.getItem(LOCAL_USER_KEY);
       if (cached) {
         try {
-          setUser({ ...DEFAULT_USER, ...JSON.parse(cached) });
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed === "object") {
+            setUser({ ...DEFAULT_USER, ...parsed });
+            setIsAuthenticated(Boolean(parsed.email));
+          }
         } catch {
           // keep default
         }
@@ -71,20 +86,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return updated;
     });
+    if (updates.email) {
+      setIsAuthenticated(true);
+    }
     toast.success("Researcher profile updated.");
   }, []);
 
-  const resetToDefault = useCallback(() => {
-    setUser(DEFAULT_USER);
+  const signOut = useCallback(async () => {
+    setUser(GUEST_USER);
+    setIsAuthenticated(false);
     if (typeof window !== "undefined") {
       localStorage.removeItem(LOCAL_USER_KEY);
+      localStorage.removeItem("paperlens_access_token");
+      localStorage.removeItem("paperlens_user");
+      localStorage.removeItem("paperatlas_google_token");
     }
-    toast.success("Profile reset to default.");
+    toast.success("Signed out successfully.");
   }, []);
 
-  const signOut = useCallback(async () => {
-    resetToDefault();
-  }, [resetToDefault]);
+  const resetToDefault = useCallback(() => {
+    signOut();
+  }, [signOut]);
 
   const signInWithGoogle = useCallback(async (customEmail?: string, customName?: string) => {
     setLoading(true);
@@ -119,8 +141,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       setUser(newUser);
+      setIsAuthenticated(true);
       if (typeof window !== "undefined") {
         localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(newUser));
+        localStorage.setItem("paperlens_user", JSON.stringify(newUser));
       }
       toast.success(`Signed in as ${targetName} (${targetEmail})`);
     } catch (err: any) {
@@ -141,25 +165,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const cleanUserEmail = user?.email?.toLowerCase() || "";
   const isUserAdmin =
-    user?.role === "admin" ||
-    cleanUserEmail.includes("kumaran") ||
-    cleanUserEmail.includes("sathiyamoorthi") ||
-    cleanUserEmail.includes("sakthikumaran") ||
-    cleanUserEmail.includes("ksmfrom2006") ||
-    cleanUserEmail.includes("admin") ||
-    cleanUserEmail === "kumaran.6373707@gmail.com" ||
-    cleanUserEmail === "kkssathiyamoorthi@gmail.com";
+    isAuthenticated &&
+    (user?.role === "admin" ||
+      cleanUserEmail.includes("kumaran") ||
+      cleanUserEmail.includes("sathiyamoorthi") ||
+      cleanUserEmail.includes("sakthikumaran") ||
+      cleanUserEmail.includes("ksmfrom2006") ||
+      cleanUserEmail.includes("admin") ||
+      cleanUserEmail === "kumaran.6373707@gmail.com" ||
+      cleanUserEmail === "kkssathiyamoorthi@gmail.com");
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: true,
+        isAuthenticated,
         loading,
         isAdmin: isUserAdmin,
         isResearcher: true,
         isConfigured: true,
-        driveSyncStatus: "connected",
+        driveSyncStatus: isAuthenticated ? "connected" : "disconnected",
         driveError: null,
         updateProfile,
         signOut,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, ShieldCheck, User as UserIcon, Settings, Sparkles, LogIn } from "lucide-react";
+import { Menu, ShieldCheck, User as UserIcon, Settings, Sparkles, LogIn, LogOut } from "lucide-react";
 import { SearchInput } from "./SearchInput";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "@/lib/auth-context";
@@ -22,7 +22,7 @@ interface Props {
 }
 
 export function TopBar({ title, eyebrow, onToggleSidebar }: Props) {
-  const { user, updateProfile } = useAuth();
+  const { user, isAuthenticated, signOut, updateProfile } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const initials = user?.name
@@ -86,14 +86,25 @@ export function TopBar({ title, eyebrow, onToggleSidebar }: Props) {
         <DriveSyncIndicator />
 
         {/* PROMINENT SIGN IN WITH GOOGLE BUTTON */}
-        <button
-          type="button"
-          onClick={() => setAuthModalOpen(true)}
-          className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-primary/40 shadow-xs transition-all cursor-pointer"
-        >
-          {googleIcon}
-          <span>Sign in with Google</span>
-        </button>
+        {!isAuthenticated ? (
+          <button
+            type="button"
+            onClick={() => setAuthModalOpen(true)}
+            className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-primary/40 shadow-xs transition-all cursor-pointer"
+          >
+            {googleIcon}
+            <span>Sign in with Google</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setAuthModalOpen(true)}
+            className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-primary/40 shadow-xs transition-all cursor-pointer"
+          >
+            {googleIcon}
+            <span>Switch Google Account</span>
+          </button>
+        )}
 
         <ThemeToggle />
 
@@ -120,7 +131,7 @@ export function TopBar({ title, eyebrow, onToggleSidebar }: Props) {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-semibold leading-none text-foreground">{user?.name || "Lead Researcher"}</p>
-                <p className="text-xs leading-none text-muted-foreground">{user?.email || "Signed in locally"}</p>
+                <p className="text-xs leading-none text-muted-foreground">{user?.email || "Signed out"}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -144,6 +155,18 @@ export function TopBar({ title, eyebrow, onToggleSidebar }: Props) {
                 <span>Analysis History</span>
               </Link>
             </DropdownMenuItem>
+            {isAuthenticated && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => signOut()}
+                  className="cursor-pointer text-destructive focus:text-destructive flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </header>

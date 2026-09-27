@@ -1,6 +1,6 @@
 {
-  "current_objective": "Removed invalid dummy Supabase URL from frontend environment and hardened isSupabaseConfigured check to eliminate DNS NXDOMAIN popup errors.",
-  "last_updated": "2026-09-28T00:36:00+05:30",
+  "current_objective": "Fixed Sign Out handler in AuthContext and verified clean session clear live.",
+  "last_updated": "2026-09-28T00:39:25+05:30",
   "steps_completed": [
     {
       "step_number": 20,
@@ -43,12 +43,17 @@
       "timestamp": "2026-09-28T00:36:00+05:30",
       "action": "Eliminated Unreachable Supabase URL & DNS NXDOMAIN Popup Error",
       "finding": "Removed invalid dummy URL wuacpjaxqjmmhpnyibdo.supabase.co from frontend/.env and frontend/.env.local. Hardened isSupabaseConfigured in frontend/src/lib/supabase.ts to prevent popup redirects to unresolvable domains. Verified via browser subagent automation."
+    },
+    {
+      "step_number": 27,
+      "timestamp": "2026-09-28T00:39:25+05:30",
+      "action": "Fixed Sign Out Handler & Verified Clean Account Clear",
+      "finding": "Updated signOut in frontend/src/lib/auth-context.tsx to clear localStorage keys (paperatlas_researcher_profile, paperlens_access_token, paperlens_user), set isAuthenticated to false, and reset user to Guest Researcher. Verified live on http://localhost:3000/settings via browser subagent."
     }
   ],
   "active_files": [
-    "frontend/.env",
-    "frontend/.env.local",
-    "frontend/src/lib/supabase.ts"
+    "frontend/src/lib/auth-context.tsx",
+    "frontend/src/components/app/TopBar.tsx"
   ],
-  "next_step": "Fix verified live on http://localhost:3000/."
+  "next_step": "Sign Out fix verified live on http://localhost:3000/."
 }
