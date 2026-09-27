@@ -1,21 +1,25 @@
+import type { ReactNode } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
-export interface ConfirmDialogProps {
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  description: string;
+  description?: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
-  tone?: "default" | "danger";
+  destructive?: boolean;
+  tone?: "neutral" | "danger" | "warning";
   onConfirm: () => void;
 }
 
@@ -26,42 +30,41 @@ export function ConfirmDialog({
   description,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
-  tone = "default",
+  destructive,
+  tone,
   onConfirm,
-}: ConfirmDialogProps) {
+}: Props) {
+  const isDestructive = destructive || tone === "danger";
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="font-serif text-lg">{title}</DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
-            {description}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="gap-2 sm:gap-0 mt-4">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => onOpenChange(false)}
-          >
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="border-border bg-surface">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="font-serif-editorial text-xl text-foreground">
+            {title}
+          </AlertDialogTitle>
+          {description && (
+            <AlertDialogDescription className="text-sm text-muted-foreground">
+              {description}
+            </AlertDialogDescription>
+          )}
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="rounded-md border border-border bg-background text-sm text-foreground hover:bg-muted">
             {cancelLabel}
-          </Button>
-          <Button
-            type="button"
-            variant={tone === "danger" ? "destructive" : "default"}
-            size="sm"
-            onClick={() => {
-              onConfirm();
-              onOpenChange(false);
-            }}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onConfirm}
+            className={cn(
+              "rounded-md px-4 py-2 text-sm font-medium",
+              isDestructive
+                ? "border border-destructive/40 bg-background text-destructive hover:bg-destructive/10"
+                : "bg-primary text-primary-foreground hover:bg-primary/90",
+            )}
           >
             {confirmLabel}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
-
-export default ConfirmDialog;

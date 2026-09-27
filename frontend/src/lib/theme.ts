@@ -1,32 +1,36 @@
-const STORAGE_KEY = "paperatlas_theme";
+// PaperLens Centralized Theme Management Utility (Dark & Light Mode)
 
-export type ThemeMode = "light" | "dark" | "system";
+export type ThemeMode = "light" | "dark";
+
+const THEME_KEY = "paperlens_theme";
 
 export function getStoredTheme(): ThemeMode {
   if (typeof window === "undefined") return "light";
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "light" || stored === "dark" || stored === "system") return stored as ThemeMode;
-  } catch {}
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored === "dark" || stored === "light") {
+    return stored;
+  }
+  // Default to system preference if present, otherwise light
+  if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
   return "light";
 }
 
-export function applyTheme(mode: ThemeMode) {
+export function applyTheme(mode: ThemeMode): void {
   if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY, mode);
-  } catch {}
+  
   const root = document.documentElement;
-  if (
-    mode === "dark" ||
-    (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
-  ) {
+  if (mode === "dark") {
     root.classList.add("dark");
   } else {
     root.classList.remove("dark");
   }
+  localStorage.setItem(THEME_KEY, mode);
 }
 
-export function initTheme() {
-  applyTheme(getStoredTheme());
+export function initTheme(): ThemeMode {
+  const current = getStoredTheme();
+  applyTheme(current);
+  return current;
 }

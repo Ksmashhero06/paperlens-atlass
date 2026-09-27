@@ -26,8 +26,6 @@ interface AuthContextType {
   updateProfile: (updates: Partial<LocalResearcherUser>) => void;
   signOut: () => Promise<void>;
   resetToDefault: () => void;
-  signInWithGoogle: () => Promise<void>;
-  reconnectDrive: () => Promise<void>;
 }
 
 const DEFAULT_USER: LocalResearcherUser = {
@@ -84,14 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     resetToDefault();
   }, [resetToDefault]);
 
-  const signInWithGoogle = useCallback(async () => {
-    toast.success("Connected with Google Drive AppData Storage.");
-  }, []);
-
-  const reconnectDrive = useCallback(async () => {
-    toast.info("Google Drive AppData Storage is active.");
-  }, []);
-
   return (
     <AuthContext.Provider
       value={{
@@ -106,8 +96,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateProfile,
         signOut,
         resetToDefault,
-        signInWithGoogle,
-        reconnectDrive,
       }}
     >
       {children}

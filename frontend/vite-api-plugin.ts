@@ -1,4 +1,5 @@
 import type { Plugin } from "vite";
+import { GoogleGenAI } from "@google/genai";
 import { mockPapers, type Paper } from "./src/lib/mock-papers.ts";
 
 // Resilient Gemini Model Fallback Ladder
@@ -18,15 +19,6 @@ async function generateWithFallback(
   if (!apiKey) {
     if (contextFallback) return contextFallback;
     throw new Error("No GEMINI_API_KEY configured");
-  }
-
-  let GoogleGenAI: any;
-  try {
-    const mod = await import("@google/genai");
-    GoogleGenAI = mod.GoogleGenAI;
-  } catch {
-    if (contextFallback) return contextFallback;
-    throw new Error("Could not load @google/genai module");
   }
 
   const ai = new GoogleGenAI({ apiKey });
