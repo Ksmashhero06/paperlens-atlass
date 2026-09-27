@@ -15,6 +15,12 @@ import { SearchInput } from "@/components/app/SearchInput";
 import { EmptyState } from "@/components/app/EmptyState";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { deletePaper, getPapers, retryPaperPipeline, type PaperResponse } from "@/lib/api";
+import {
+  loadAllPapersWithSync,
+  deletePaperCompletely,
+  type AppDataPaper,
+} from "@/lib/paper-store";
+import { DriveSyncIndicator } from "@/components/app/DriveSyncIndicator";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -77,8 +83,21 @@ function PapersPage() {
     setLoading(true);
     setErrorMessage(null);
     try {
-      const list = await getPapers();
-      setPapers(list);
+      const syncResult = await loadAllPapersWithSync();
+      // Map AppDataPaper to PaperResponse structure
+      const mapped: PaperResponse[] = syncResult.papers.map((p) => ({
+        id: p.id,
+        title: p.title,
+        authors: p.authors?.join(", ") || "",
+        publication_year: p.publicationYear || 2026,
+        abstract: p.summary || "",
+        file_name: p.fileName || "paper.pdf",
+        page_count: p.pageCount || 12,
+        status: (p.processingStatus === "completed" ? "READY" : p.processingStatus === "failed" ? "FAILED" : "PROCESSING") as any,
+        created_at: p.uploadedAt || new Date().toISOString(),
+        processing_error: undefined,
+      }));
+      setPapers(mapped);
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to load papers library.");
     } finally {
@@ -123,9 +142,9 @@ function PapersPage() {
     if (!pendingDelete) return;
     const id = pendingDelete.id;
     try {
-      await deletePaper(id);
+      await deletePaperCompletely(id);
       setPapers((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Paper deleted successfully");
+      toast.success("Paper deleted successfully from workspace and Google Drive");
     } catch (err: any) {
       toast.error(err.message || "Failed to delete paper.");
     } finally {
@@ -150,16 +169,19 @@ function PapersPage() {
         <div>
           <h1 className="font-serif-editorial text-3xl leading-tight text-foreground">My Papers</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Your analyzed research papers in one place.
+            Your analyzed research papers backed up to Google Drive AppData.
           </p>
         </div>
-        <Link
-          to="/upload"
-          className="inline-flex items-center gap-2 self-start rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 sm:self-auto"
-        >
-          <UploadCloud className="h-4 w-4" />
-          Upload Paper
-        </Link>
+        <div className="flex items-center gap-3">
+          <DriveSyncIndicator />
+          <Link
+            to="/upload"
+            className="inline-flex items-center gap-2 self-start rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 sm:self-auto cursor-pointer"
+          >
+            <UploadCloud className="h-4 w-4" />
+            Upload Paper
+          </Link>
+        </div>
       </header>
 
       {/* Controls */}

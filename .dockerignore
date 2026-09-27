@@ -1,0 +1,9 @@
+node_modules
+frontend/node_modules
+backend
+docs
+.wrangler
+.output
+.git
+*.log
+.DS_Store
