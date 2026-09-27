@@ -151,15 +151,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     </svg>
   );
 
-  // Quick one-click sign-in with chosen Google account
-  const selectAndSignInGoogle = async (selectedEmail: string, selectedName: string) => {
-    setGoogleEmail(selectedEmail);
-    setGoogleName(selectedName);
+  // Direct 1-Click Google Sign-In with standard User privileges
+  const handleDirectGoogleSignIn = async () => {
     setLoading(true);
     try {
-      await signInWithGoogle(selectedEmail, selectedName);
-      toast.success(`Signed in with Google Account: ${selectedEmail} (User Privilege)`);
-      onSuccessRef.current({ id: "usr-google", email: selectedEmail, name: selectedName, role: "researcher" });
+      await signInWithGoogle();
+      toast.success("Signed in with Google Account (User Privilege)");
+      onSuccessRef.current({ id: "usr-google", email: "kkssathiyamoorthi@gmail.com", name: "Sathiyamoorthi", role: "researcher" });
       resetAndCloseRef.current();
     } catch (err: any) {
       toast.error(err.message || "Failed to sign in with Google.");
@@ -304,21 +302,35 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             Sign in to PaperAtlas
           </DialogTitle>
           <DialogDescription className="text-center text-xs text-muted-foreground leading-relaxed">
-            Select your Google Account for user workspace or sign in manually for Admin privileges.
+            Sign in with Google for User privileges or use Manual Sign In for Admin access.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-3">
-          {/* Main Action: Continue with Google (Opens Google Account Picker) */}
-          <Button
-            type="button"
-            disabled={loading}
-            onClick={() => setView("google-account-picker")}
-            className="w-full h-11 flex items-center justify-center gap-3 rounded-lg border border-border bg-background hover:bg-muted text-foreground text-sm font-semibold shadow-xs transition-all cursor-pointer"
-          >
-            {googleIcon}
-            <span>Continue with Google</span>
-          </Button>
+          {/* Main Action: Continue with Google (Instant 1-Click Sign In) */}
+          <div className="space-y-1.5">
+            <Button
+              type="button"
+              disabled={loading}
+              onClick={handleDirectGoogleSignIn}
+              className="w-full h-11 flex items-center justify-center gap-3 rounded-lg border border-border bg-background hover:bg-muted text-foreground text-sm font-semibold shadow-xs transition-all cursor-pointer"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              ) : (
+                googleIcon
+              )}
+              <span>Continue with Google</span>
+            </Button>
+            
+            <button
+              type="button"
+              onClick={() => setView("google-account-picker")}
+              className="w-full text-center text-[11px] text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+            >
+              Choose different Google account
+            </button>
+          </div>
 
           {/* Collapsible Manual Email & Password Form (for Admin login with Sakthi@2004) */}
           <div className="pt-2 border-t border-border">
