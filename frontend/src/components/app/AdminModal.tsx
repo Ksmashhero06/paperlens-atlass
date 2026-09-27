@@ -92,7 +92,7 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
                   PaperLens System Administrator Panel
                 </DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground">
-                  Admin: <span className="font-semibold text-foreground">{currentUser?.email || stats?.admin || "kkssakthikumaran@gmail.com"}</span>
+                  Admin: <span className="font-semibold text-foreground">{stats?.admin || "kkssakthikumaran@gmail.com"}</span>
                 </DialogDescription>
               </div>
             </div>
