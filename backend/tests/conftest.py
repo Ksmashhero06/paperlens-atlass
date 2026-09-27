@@ -8,11 +8,24 @@ from sqlalchemy.pool import StaticPool
 import app.main as main_module
 from app.api.deps import get_db
 from app.db.base import Base
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.dialects.postgresql import JSONB
+
+try:
+    from pgvector.sqlalchemy import Vector
+    @compiles(Vector, "sqlite")
+    def _compile_vector_sqlite(type_, compiler, **kw):
+        return "TEXT"
+except ImportError:
+    pass
+
+@compiles(JSONB, "sqlite")
+def _compile_jsonb_sqlite(type_, compiler, **kw):
+    return "TEXT"
+
 import app.models  # noqa: F401
 
 fastapi_app = main_module.app
-
-
 
 # In-memory SQLite for rapid unit testing without external database container
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"

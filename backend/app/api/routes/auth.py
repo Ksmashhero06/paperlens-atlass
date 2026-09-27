@@ -13,9 +13,13 @@ from app.schemas.user import OAuthLoginRequest, UserCreate, UserLogin, UserRespo
 
 router = APIRouter()
 
-ADMIN_EMAIL = "kkssakthikumaran@gmail.com"
+ADMIN_EMAILS = {"kkssakthikumaran@gmail.com", "kumaran.6373707@gmail.com"}
 COOKIE_NAME = "paperlens_token"
 COOKIE_MAX_AGE = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+
+
+def is_admin_email(email: str) -> bool:
+    return email.lower().strip() in ADMIN_EMAILS
 
 
 def _set_auth_cookie(response: Response, token: str):
@@ -50,7 +54,7 @@ async def register(
             detail="A user with this email address already exists."
         )
 
-    is_admin = (email_clean == ADMIN_EMAIL.lower())
+    is_admin = is_admin_email(email_clean)
 
     new_user = User(
         email=email_clean,
@@ -125,7 +129,7 @@ async def oauth_login(
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
 
-    is_admin_user = (email_clean == ADMIN_EMAIL.lower())
+    is_admin_user = is_admin_email(email_clean)
 
     if not user:
         user = User(
@@ -201,7 +205,7 @@ async def login(
         )
 
     user.last_login_at = datetime.now(timezone.utc)
-    if email_clean == ADMIN_EMAIL.lower() and not user.is_admin:
+    if is_admin_email(email_clean) and not user.is_admin:
         user.is_admin = True
 
     await db.commit()

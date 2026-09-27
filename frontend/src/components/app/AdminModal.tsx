@@ -36,8 +36,10 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
     }
   }, [isOpen]);
 
+  const ADMIN_EMAILS = ["kkssakthikumaran@gmail.com", "kumaran.6373707@gmail.com"];
+
   const handleToggleStatus = async (userId: string, currentStatus: boolean, email: string) => {
-    if (email.toLowerCase() === "kkssakthikumaran@gmail.com") {
+    if (ADMIN_EMAILS.includes(email.toLowerCase())) {
       toast.error("Primary Administrator account status cannot be changed.");
       return;
     }
@@ -52,7 +54,7 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
   };
 
   const handleDeleteUser = async (userId: string, email: string) => {
-    if (email.toLowerCase() === "kkssakthikumaran@gmail.com") {
+    if (ADMIN_EMAILS.includes(email.toLowerCase())) {
       toast.error("Primary Administrator account cannot be deleted.");
       return;
     }
@@ -68,7 +70,7 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
   };
 
   const filteredUsers = users.filter((u) => {
-    const q = searchQuery.toLowerCase().strip ? searchQuery.toLowerCase().trim() : searchQuery.toLowerCase();
+    const q = searchQuery.toLowerCase().trim();
     return (
       u.name?.toLowerCase().includes(q) ||
       u.email.toLowerCase().includes(q) ||
@@ -90,7 +92,7 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
                   PaperLens System Administrator Panel
                 </DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground">
-                  Admin: <span className="font-semibold text-foreground">kkssakthikumaran@gmail.com</span>
+                  Admin: <span className="font-semibold text-foreground">{currentUser?.email || stats?.admin || "kkssakthikumaran@gmail.com"}</span>
                 </DialogDescription>
               </div>
             </div>

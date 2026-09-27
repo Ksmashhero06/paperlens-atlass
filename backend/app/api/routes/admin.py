@@ -88,7 +88,7 @@ async def toggle_user_status(
 @router.get("/stats", response_model=Dict[str, Any])
 async def get_system_stats(
     db: AsyncSession = Depends(get_db),
-    _: User = Depends(require_admin)
+    admin: User = Depends(require_admin)
 ) -> Dict[str, Any]:
     """
     Get system-wide metrics: total users, active users, total workspaces, total papers, processing status breakdown.
@@ -111,7 +111,7 @@ async def get_system_stats(
         "ready_papers": ready_papers,
         "processing_papers": processing_papers,
         "failed_papers": failed_papers,
-        "admin": "kkssakthikumaran@gmail.com"
+        "admin": admin.email
     }
 
 

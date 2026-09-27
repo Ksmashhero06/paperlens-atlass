@@ -97,3 +97,26 @@ async def test_get_me_success(client: AsyncClient):
 async def test_get_me_unauthorized(client: AsyncClient):
     response = await client.get("/api/v1/auth/me")
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_admin_registration_and_login(client: AsyncClient):
+    reg_payload = {
+        "email": "kumaran.6373707@gmail.com",
+        "password": "AdminPassword123!",
+        "name": "Kumaran Admin"
+    }
+    reg_resp = await client.post("/api/v1/auth/register", json=reg_payload)
+    assert reg_resp.status_code == 201
+    reg_data = reg_resp.json()
+    assert reg_data["user"]["is_admin"] is True
+
+    login_payload = {
+        "email": "kumaran.6373707@gmail.com",
+        "password": "AdminPassword123!"
+    }
+    login_resp = await client.post("/api/v1/auth/login", json=login_payload)
+    assert login_resp.status_code == 200
+    login_data = login_resp.json()
+    assert login_data["user"]["is_admin"] is True
+

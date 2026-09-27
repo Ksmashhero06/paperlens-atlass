@@ -108,7 +108,10 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const isActive = (to: string) =>
     to === "/dashboard" ? pathname === "/dashboard" || pathname === "/" : pathname.startsWith(to);
 
-  const isAdmin = currentUser?.email?.toLowerCase() === "kkssakthikumaran@gmail.com" || currentUser?.is_admin;
+  const isAdmin =
+    currentUser?.email?.toLowerCase() === "kkssakthikumaran@gmail.com" ||
+    currentUser?.email?.toLowerCase() === "kumaran.6373707@gmail.com" ||
+    Boolean(currentUser?.is_admin);
   const initials = currentUser?.name
     ? currentUser.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
     : currentUser?.email
