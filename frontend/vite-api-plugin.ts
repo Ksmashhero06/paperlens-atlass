@@ -2,7 +2,7 @@ import type { Plugin } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { mockPapers, type Paper } from "./src/lib/mock-papers.ts";
 
-// Resilient Gemini Model Fallback Ladder
+// Multi-Key & Multi-Model Resilient Gemini Fallback Ladder
 const GEMINI_MODELS = [
   "gemini-3.6-flash",
   "gemini-3.1-flash-lite",
@@ -10,58 +10,50 @@ const GEMINI_MODELS = [
   "gemini-3.7-flash",
 ];
 
+function getGeminiApiKeys(): string[] {
+  const envKeys = process.env.GEMINI_API_KEYS
+    ? process.env.GEMINI_API_KEYS.split(",").map((k) => k.trim()).filter(Boolean)
+    : process.env.GEMINI_API_KEY
+    ? [process.env.GEMINI_API_KEY.trim()]
+    : [];
+
+  return envKeys;
+}
+
 async function generateWithFallback(
   prompt: string,
   systemInstruction?: string,
   contextFallback?: string
 ): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    if (contextFallback) return contextFallback;
-    throw new Error("No GEMINI_API_KEY configured");
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
+  const keys = getGeminiApiKeys();
   let lastError: any = null;
 
-  for (const model of GEMINI_MODELS) {
-    try {
-      const response = await ai.models.generateContent({
-        model,
-        contents: prompt,
-        config: systemInstruction ? { systemInstruction } : undefined,
-      });
-      if (response && response.text) {
-        return response.text;
-      }
-    } catch (err: any) {
-      lastError = err;
-      const errMsg = String(err?.message || err?.status || err || "");
-      const isRecoverable =
-        errMsg.includes("RESOURCE_EXHAUSTED") ||
-        errMsg.includes("Resource has been exhausted") ||
-        errMsg.includes("429") ||
-        errMsg.includes("quota") ||
-        errMsg.includes("503") ||
-        errMsg.includes("UNAVAILABLE") ||
-        errMsg.includes("404") ||
-        errMsg.includes("500") ||
-        errMsg.includes("INTERNAL");
+  for (const apiKey of keys) {
+    const ai = new GoogleGenAI({ apiKey });
 
-      console.warn(
-        `[Gemini Fallback] Model '${model}' failed with status: ${errMsg}. Recoverable: ${isRecoverable}. Attempting next model in ladder...`
-      );
-
-      // Brief backoff for rate limits before trying the next model
-      if (errMsg.includes("429") || errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("exhausted")) {
-        await new Promise((r) => setTimeout(r, 250));
+    for (const model of GEMINI_MODELS) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+          config: systemInstruction ? { systemInstruction } : undefined,
+        });
+        if (response && response.text) {
+          return response.text;
+        }
+      } catch (err: any) {
+        lastError = err;
+        const errMsg = String(err?.message || err?.status || err || "");
+        console.warn(
+          `[Gemini Fallback] Key '${apiKey.slice(0, 12)}...' Model '${model}' failed: ${errMsg}. Retrying...`
+        );
       }
     }
   }
 
-  // If all models hit quota or fail, use grounded scientific fallback synthesis to avoid 500 error
+  // If all models and keys hit quota or fail, use grounded scientific context synthesis fallback
   if (contextFallback) {
-    console.warn("[Gemini Fallback] All ladder models exhausted quota. Providing resilient context synthesis.");
+    console.warn("[Gemini Fallback] All keys and ladder models exhausted. Providing resilient context synthesis.");
     return contextFallback;
   }
 
@@ -645,9 +637,19 @@ function createApiMiddleware() {
             if (typeof body === "string") {
               const filenameMatch = body.match(/filename="([^"]+)"/i);
               if (filenameMatch) extractedFileName = filenameMatch[1];
-            } else if (body.filename || body.file_name) {
+            } else if (body && (body.filename || body.file_name)) {
               extractedFileName = body.filename || body.file_name;
             }
+
+            const cleanTitle =
+              (body && body.title) ||
+              extractedFileName
+                .replace(/\.pdf$/i, "")
+                .replace(/[_-]/g, " ")
+                .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+            const authors = (body && body.authors) || "Sakthi Kumaran, AI Research Group";
+            const pages = (body && body.page_count) || 12;
 
             const abstract =
               body.abstract ||
