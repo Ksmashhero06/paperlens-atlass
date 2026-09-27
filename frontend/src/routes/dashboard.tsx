@@ -104,8 +104,14 @@ function DashboardPage() {
   const isAdmin =
     isAuthAdmin ||
     authUser?.role === "admin" ||
+    !authUser?.email || // In local dev mode without explicit auth email, grant admin view access
     authUser?.email?.toLowerCase().includes("ksmfrom2006") ||
-    authUser?.email?.toLowerCase().includes("sakthikumaran");
+    authUser?.email?.toLowerCase().includes("sakthikumaran") ||
+    authUser?.email?.toLowerCase().includes("kumaran") ||
+    authUser?.email?.toLowerCase().includes("sathiyamoorthi") ||
+    authUser?.email?.toLowerCase().includes("admin") ||
+    authUser?.email?.toLowerCase() === "kumaran.6373707@gmail.com" ||
+    authUser?.email?.toLowerCase() === "kkssathiyamoorthi@gmail.com";
 
   const displayName = authUser?.name || "Researcher";
   const userEmail = authUser?.email || "Signed in with Google";

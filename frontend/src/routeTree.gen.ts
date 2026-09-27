@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as R404RouteImport } from './routes/404'
 import { Route as ActivityRouteImport } from './routes/activity'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -35,6 +36,11 @@ const R404Route = R404RouteImport.update({
 const ActivityRoute = ActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/404': typeof R404Route
   '/activity': typeof ActivityRoute
+  '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/404': typeof R404Route
   '/activity': typeof ActivityRoute
+  '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/404': typeof R404Route
   '/activity': typeof ActivityRoute
+  '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
   '/history': typeof HistoryRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/404'
     | '/activity'
+    | '/admin'
     | '/dashboard'
     | '/help'
     | '/history'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/404'
     | '/activity'
+    | '/admin'
     | '/dashboard'
     | '/help'
     | '/history'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/'
     | '/404'
     | '/activity'
+    | '/admin'
     | '/dashboard'
     | '/help'
     | '/history'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   R404Route: typeof R404Route
   ActivityRoute: typeof ActivityRoute
+  AdminRoute: typeof AdminRoute
   DashboardRoute: typeof DashboardRoute
   HelpRoute: typeof HelpRoute
   HistoryRoute: typeof HistoryRoute
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/activity'
       fullPath: '/activity'
       preLoaderRoute: typeof ActivityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R404Route: R404Route,
   ActivityRoute: ActivityRoute,
+  AdminRoute: AdminRoute,
   DashboardRoute: DashboardRoute,
   HelpRoute: HelpRoute,
   HistoryRoute: HistoryRoute,

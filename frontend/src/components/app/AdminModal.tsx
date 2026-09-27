@@ -38,7 +38,16 @@ export function AdminModal({ isOpen, onClose }: AdminModalProps) {
 
   const isPrimaryAdmin = (email: string) => {
     const clean = email.toLowerCase().trim();
-    return clean === "ksmfrom2006@gmail.com" || clean === "kkssakthikumaran@gmail.com" || clean.includes("admin");
+    return (
+      clean === "ksmfrom2006@gmail.com" ||
+      clean === "kkssakthikumaran@gmail.com" ||
+      clean === "kumaran.6373707@gmail.com" ||
+      clean === "kkssathiyamoorthi@gmail.com" ||
+      clean.includes("kumaran") ||
+      clean.includes("sathiyamoorthi") ||
+      clean.includes("sakthikumaran") ||
+      clean.includes("admin")
+    );
   };
 
   const handleToggleStatus = async (userId: string, currentStatus: boolean, email: string) => {

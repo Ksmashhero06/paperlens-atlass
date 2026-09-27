@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowLeft, CheckCircle2, RotateCw } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, RotateCw, FileQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface ErrorStateProps {
@@ -78,6 +78,14 @@ export function SuccessState({
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+export function DocumentMark({ variant = "default" }: { variant?: "default" | "torn" }) {
+  return (
+    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/60 text-muted-foreground">
+      <FileQuestion className="h-8 w-8 text-primary" />
     </div>
   );
 }

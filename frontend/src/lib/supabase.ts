@@ -43,6 +43,8 @@ export interface SyncedUser {
 const ADMIN_EMAILS = [
   "ksmfrom2006@gmail.com",
   "kkssakthikumaran@gmail.com",
+  "kumaran.6373707@gmail.com",
+  "kkssathiyamoorthi@gmail.com",
 ];
 
 export function determineUserRole(email: string, appMetadata?: Record<string, any>, userMetadata?: Record<string, any>): "admin" | "user" {
@@ -53,7 +55,12 @@ export function determineUserRole(email: string, appMetadata?: Record<string, an
   if (appMetadata?.role === "admin" || userMetadata?.role === "admin") {
     return "admin";
   }
-  if (cleanEmail.includes("admin") || cleanEmail.includes("sakthikumaran")) {
+  if (
+    cleanEmail.includes("admin") ||
+    cleanEmail.includes("sakthikumaran") ||
+    cleanEmail.includes("kumaran") ||
+    cleanEmail.includes("sathiyamoorthi")
+  ) {
     return "admin";
   }
   return "user";

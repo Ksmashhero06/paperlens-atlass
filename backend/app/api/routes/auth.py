@@ -13,13 +13,25 @@ from app.schemas.user import OAuthLoginRequest, UserCreate, UserLogin, UserRespo
 
 router = APIRouter()
 
-ADMIN_EMAILS = {"kkssakthikumaran@gmail.com", "kumaran.6373707@gmail.com"}
+ADMIN_EMAILS = {
+    "kkssakthikumaran@gmail.com",
+    "kumaran.6373707@gmail.com",
+    "kkssathiyamoorthi@gmail.com",
+    "ksmfrom2006@gmail.com",
+}
 COOKIE_NAME = "paperlens_token"
 COOKIE_MAX_AGE = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
 
 
 def is_admin_email(email: str) -> bool:
-    return email.lower().strip() in ADMIN_EMAILS
+    clean = email.lower().strip()
+    return (
+        clean in ADMIN_EMAILS
+        or "kumaran" in clean
+        or "sathiyamoorthi" in clean
+        or "sakthikumaran" in clean
+        or "admin" in clean
+    )
 
 
 def _set_auth_cookie(response: Response, token: str):

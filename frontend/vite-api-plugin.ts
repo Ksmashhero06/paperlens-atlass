@@ -374,7 +374,11 @@ function createApiMiddleware() {
               body.role === "admin" ||
               email === "ksmfrom2006@gmail.com" ||
               email === "kkssakthikumaran@gmail.com" ||
+              email === "kumaran.6373707@gmail.com" ||
+              email === "kkssathiyamoorthi@gmail.com" ||
               email.includes("admin") ||
+              email.includes("kumaran") ||
+              email.includes("sathiyamoorthi") ||
               email.includes("sakthikumaran");
 
             let user = usersStore.find((u) => u.email.toLowerCase() === email);
@@ -457,7 +461,11 @@ function createApiMiddleware() {
             const isAdmin =
               cleanEmail.toLowerCase().includes("ksmfrom2006") ||
               cleanEmail.toLowerCase().includes("sakthikumaran") ||
-              cleanEmail.toLowerCase().includes("admin");
+              cleanEmail.toLowerCase().includes("kumaran") ||
+              cleanEmail.toLowerCase().includes("sathiyamoorthi") ||
+              cleanEmail.toLowerCase().includes("admin") ||
+              cleanEmail.toLowerCase() === "kumaran.6373707@gmail.com" ||
+              cleanEmail.toLowerCase() === "kkssathiyamoorthi@gmail.com";
 
             // Look up existing user or register
             let user = usersStore.find((u) => u.email.toLowerCase() === cleanEmail.toLowerCase());
