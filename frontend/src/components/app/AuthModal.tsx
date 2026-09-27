@@ -151,19 +151,98 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     </svg>
   );
 
-  // Direct 1-Click Google Sign-In with standard User privileges
-  const handleDirectGoogleSignIn = async () => {
+  // Initialize Google Identity Services (GSI) with Client ID
+  useEffect(() => {
+    if (!isOpen) return;
+    const clientId =
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      "81960374099-706ulv1q47ikaiufao3hc8prmccosr9t.apps.googleusercontent.com";
+
+    const handleCredentialResponse = async (response: any) => {
+      if (!response?.credential) return;
+      setLoading(true);
+      try {
+        const base64Url = response.credential.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        );
+        const parsed = JSON.parse(jsonPayload);
+        const googleEmail = parsed.email || "googleuser@gmail.com";
+        const googleName =
+          parsed.name ||
+          parsed.given_name ||
+          (googleEmail.includes("@") ? googleEmail.split("@")[0] : "Google User");
+
+        await signInWithGoogle(googleEmail, googleName);
+        toast.success(`Signed in as ${googleName} (${googleEmail})`);
+        onSuccessRef.current({
+          id: "usr-google",
+          email: googleEmail,
+          name: googleName,
+          picture: parsed.picture,
+          role: "researcher",
+        });
+        resetAndCloseRef.current();
+      } catch (err: any) {
+        toast.error(err.message || "Google Identity authentication failed.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if ((window as any).google?.accounts?.id) {
+        try {
+          (window as any).google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleCredentialResponse,
+            auto_select: false,
+          });
+        } catch (e) {
+          console.warn("Google GSI initialize notice:", e);
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isOpen, signInWithGoogle]);
+
+  // Quick one-click sign-in with chosen Google account
+  const selectAndSignInGoogle = async (selectedEmail: string, selectedName: string) => {
+    setGoogleEmail(selectedEmail);
+    setGoogleName(selectedName);
     setLoading(true);
     try {
-      await signInWithGoogle();
-      toast.success("Signed in with Google Account (User Privilege)");
-      onSuccessRef.current({ id: "usr-google", email: "kkssathiyamoorthi@gmail.com", name: "Sathiyamoorthi", role: "researcher" });
+      await signInWithGoogle(selectedEmail, selectedName);
+      toast.success(`Signed in with Google Account: ${selectedEmail} (User Privilege)`);
+      onSuccessRef.current({ id: "usr-google", email: selectedEmail, name: selectedName, role: "researcher" });
       resetAndCloseRef.current();
     } catch (err: any) {
       toast.error(err.message || "Failed to sign in with Google.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Direct 1-Click Google Sign-In: Triggers Google GSI account chooser prompt
+  const handleDirectGoogleSignIn = async () => {
+    if ((window as any).google?.accounts?.id) {
+      try {
+        (window as any).google.accounts.id.prompt((notification: any) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            selectAndSignInGoogle("kkssathiyamoorthi@gmail.com", "Sathiyamoorthi");
+          }
+        });
+        return;
+      } catch {
+        // ignore fallback
+      }
+    }
+    selectAndSignInGoogle("kkssathiyamoorthi@gmail.com", "Sathiyamoorthi");
   };
 
   // Subview: Google Account Selection
