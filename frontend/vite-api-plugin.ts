@@ -457,6 +457,8 @@ function createApiMiddleware() {
             const isAdmin =
               cleanEmail.toLowerCase().includes("ksmfrom2006") ||
               cleanEmail.toLowerCase().includes("sakthikumaran") ||
+              cleanEmail.toLowerCase().includes("kumaran.6373707") ||
+              cleanEmail.toLowerCase().includes("kkssathiyamoorthi") ||
               cleanEmail.toLowerCase().includes("admin");
 
             // Look up existing user or register
