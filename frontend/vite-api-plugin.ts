@@ -640,7 +640,22 @@ function createApiMiddleware() {
           if (pathname === "/api/v1/papers/upload" && method === "POST") {
             const body = await readBody();
             const newId = "paper-" + Date.now().toString(36);
-            const title = body.title || "Hierarchical Vector Representations for Evidence-Grounded Scientific Synthesis";
+
+            let extractedFileName = "Uploaded_Paper.pdf";
+            if (typeof body === "string") {
+              const filenameMatch = body.match(/filename="([^"]+)"/i);
+              if (filenameMatch) extractedFileName = filenameMatch[1];
+            } else if (body.filename || body.file_name) {
+              extractedFileName = body.filename || body.file_name;
+            }
+
+            const cleanTitle =
+              body.title ||
+              extractedFileName
+                .replace(/\.pdf$/i, "")
+                .replace(/[_-]/g, " ")
+                .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
             const authors = body.authors || "Sakthi Kumaran, AI Research Group";
             const pages = body.page_count || 12;
 
@@ -650,11 +665,11 @@ function createApiMiddleware() {
               user_id: "usr-ksm",
               user_name: "Sakthi Kumaran",
               user_email: "ksmfrom2006@gmail.com",
-              title,
+              title: cleanTitle,
               authors,
               abstract: "An end-to-end framework integrating multi-stage document parsing, section-aware semantic chunking, and dual-encoder retrieval with exact citation grounding.",
               publication_year: 2026,
-              file_name: `${newId}.pdf`,
+              file_name: extractedFileName,
               file_size: 2450000,
               page_count: pages,
               status: "PROCESSING",
@@ -666,7 +681,7 @@ function createApiMiddleware() {
               questions_count: 0,
               raw: {
                 id: newId,
-                title,
+                title: cleanTitle,
                 authors: [authors],
                 year: 2026,
                 venue: "arXiv preprint 2609.12345",
@@ -693,7 +708,7 @@ function createApiMiddleware() {
             activityLogs.unshift({
               id: `act-${Date.now()}`,
               user: "Sakthi Kumaran",
-              action: `Uploaded research paper: ${title.slice(0, 40)}...`,
+              action: `Uploaded research paper: ${cleanTitle.slice(0, 40)}...`,
               resource: newId,
               time: "Just now",
               type: "upload",

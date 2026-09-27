@@ -49,7 +49,7 @@ export const Route = createFileRoute("/upload")({
 
 const MAX_MB = 20;
 
-// The Real Academic Pipeline Stages including Google Drive AppData saving
+// Standard 9-Stage Academic Research Pipeline
 const PIPELINE_STAGES = [
   { key: "UPLOAD", label: "PDF uploaded", description: "Binary payload stored & verified" },
   { key: "PDF_VALIDATION", label: "PDF validation", description: "Verifying document layout & academic structure" },
@@ -59,8 +59,7 @@ const PIPELINE_STAGES = [
   { key: "EMBEDDING", label: "Generating embeddings", description: "Computing 768-dim normalized representations" },
   { key: "VECTOR_INDEXING", label: "Vector indexing", description: "Building high-performance retrieval index" },
   { key: "PAPER_ANALYSIS", label: "Paper analysis", description: "Extracting claims, methodology & findings" },
-  { key: "SAVE_APPDATA", label: "Save to Google Drive AppData", description: "Persisting encrypted paper & analysis to user Google Account" },
-  { key: "READY", label: "Analysis Ready", description: "Saved to Google Drive & ready for grounded research" },
+  { key: "READY", label: "Analysis Ready", description: "Saved to research library & ready for grounded Q&A" },
 ];
 
 type Phase = "idle" | "selected" | "uploading" | "processing" | "done" | "processing-failed";
