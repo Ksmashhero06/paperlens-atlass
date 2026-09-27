@@ -1,86 +1,20 @@
 {
-  "current_objective": "Generating clean, authoritative Database Design table specification documentation matching PaperLens Atlas architecture.",
-  "last_updated": "2026-09-27T19:50:30+05:30",
+  "current_objective": "Fix Vercel deployment configuration and React router error boundaries for paperlens-atlas.",
+  "last_updated": "2026-09-27T21:07:20+05:30",
   "steps_completed": [
     {
-      "step_number": 1,
-      "timestamp": "2026-09-23T07:03:45+05:30",
-      "action": "Updated User Model",
-      "finding": "Added picture (String 512), last_login_at (DateTime), and is_active (Boolean) to backend/app/models/user.py."
+      "step_number": 14,
+      "timestamp": "2026-09-27T20:48:10+05:30",
+      "action": "Added kumaran.6373707@gmail.com Admin Login",
+      "finding": "Added kumaran.6373707@gmail.com to ADMIN_EMAILS in auth routes, updated admin stats & modal components, added unit test verifying automatic is_admin assignment, and pushed commit dafdbe7 to both GitHub remotes."
     },
     {
-      "step_number": 2,
-      "timestamp": "2026-09-23T07:03:53+05:30",
-      "action": "Updated User Schemas",
-      "finding": "Updated UserResponse, OAuthLoginRequest, and added UserStatusUpdate in backend/app/schemas/user.py."
-    },
-    {
-      "step_number": 3,
-      "timestamp": "2026-09-23T07:04:04+05:30",
-      "action": "Updated Authentication Routes",
-      "finding": "Updated auth.py to record last_login_at, store profile picture from Google OAuth, and enforce active account checks on login."
-    },
-    {
-      "step_number": 4,
-      "timestamp": "2026-09-23T07:04:14+05:30",
-      "action": "Enhanced Admin Management Routes & Frontend UI",
-      "finding": "Enhanced admin.py and AdminModal.tsx with user analysis counts, active user metrics, status badge indicators, search filter, and account enable/disable toggle endpoint (PATCH /admin/users/{user_id}/status)."
-    },
-    {
-      "step_number": 5,
-      "timestamp": "2026-09-23T09:23:36+05:30",
-      "action": "Merged and Pushed to Remote GitHub",
-      "finding": "Fetched remote origin main, executed non-fast-forward merge cleanly, and pushed all commits (2c35d2a..0d6a646) to GitHub."
-    },
-    {
-      "step_number": 6,
-      "timestamp": "2026-09-23T09:33:20+05:30",
-      "action": "Diagnosed Port Listening Status",
-      "finding": "Found background powershell windows closed. Started backend on port 8000 and frontend on port 8080 directly via daemon commands."
-    },
-    {
-      "step_number": 7,
-      "timestamp": "2026-09-23T09:36:00+05:30",
-      "action": "Verified Chrome Browser Rendering",
-      "finding": "Navigated to http://localhost:8080/, verified Overview · PaperLens dashboard, sidebar navigation, upload buttons, and confirmed clean execution."
-    },
-    {
-      "step_number": 8,
-      "timestamp": "2026-09-23T10:05:28+05:30",
-      "action": "Executed test_auth.py Suite",
-      "finding": "All 6 authentication & user tests passed 100% (6 passed in 2.04s)."
-    },
-    {
-      "step_number": 9,
-      "timestamp": "2026-09-23T10:18:15+05:30",
-      "action": "Implemented Google Identity Services (GSI) 3-Step Sign-In",
-      "finding": "Added GSI script to __root.tsx head, initialized GSI button & credential handler in AuthModal.tsx, updated backend auth.py to decode JWT ID token payload, verified test_auth.py (6/6 passed), and pushed commit 1134882 to GitHub."
-    },
-    {
-      "step_number": 10,
-      "timestamp": "2026-09-23T10:31:40+05:30",
-      "action": "Pushed to Secondary Remote (Ksmashhero06/paperlens-atlass)",
-      "finding": "Added remote ksmashhero, resolved README.md merge conflict, and pushed all commits up to bd6ae3c to both origin and ksmashhero remotes."
-    },
-    {
-      "step_number": 11,
-      "timestamp": "2026-09-23T10:53:00+05:30",
-      "action": "Consolidated oauthLogin Function in api.ts",
-      "finding": "Merged duplicate oauthLogin export into single typed implementation, verified Vite HMR compilation, and pushed commit 1989f43 to both GitHub remotes."
-    },
-    {
-      "step_number": 12,
-      "timestamp": "2026-09-23T10:58:30+05:30",
-      "action": "Verified Clean Chrome Execution",
-      "finding": "Browser subagent confirmed zero compilation errors, clean Vite HMR connection, and verified PaperLens dashboard running smoothly at http://localhost:8080."
-    },
-    {
-      "step_number": 13,
-      "timestamp": "2026-09-27T20:09:00+05:30",
-      "action": "Minimized Database Table Entities",
-      "finding": "Streamlined database design to 5 core entities with minimal key fields for clean project documentation."
+      "step_number": 15,
+      "timestamp": "2026-09-27T21:07:20+05:30",
+      "action": "Fixed Vercel Build & SPA Rewrites",
+      "finding": "Provided signInWithGoogle & reconnectDrive in auth-context.tsx to prevent React render exceptions, dynamicized @google/genai in vite-api-plugin.ts, created root and frontend vercel.json with index.html SPA rewrites, and verified clean frontend production build."
     }
   ],
   "active_files": [],
-  "next_step": "Awaiting next user prompt."
+  "next_step": "Awaiting Vercel deployment confirmation from user."
 }
