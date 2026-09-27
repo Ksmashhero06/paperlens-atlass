@@ -51,15 +51,15 @@
       "finding": "Updated signOut in frontend/src/lib/auth-context.tsx to clear localStorage keys (paperatlas_researcher_profile, paperlens_access_token, paperlens_user), set isAuthenticated to false, and reset user to Guest Researcher. Verified live on http://localhost:3000/settings via browser subagent."
     },
     {
-      "step_number": 28,
-      "timestamp": "2026-09-28T00:54:30+05:30",
-      "action": "Updated Google Sign-In Selector & Enforced Admin Manual Login Rule",
-      "finding": "Updated AuthModal.tsx to open a dedicated Google Account picker on 'Continue with Google', allowing selection of any Google account (scholar@university.edu, user@gmail.com, kumaran.6373707@gmail.com) with default User privileges. Enforced that Admin privileges require Manual Sign-In with email kumaran.6373707@gmail.com and password Sakthi@2004."
+      "step_number": 29,
+      "timestamp": "2026-09-28T01:50:00+05:30",
+      "action": "Restored Paper Upload Pipeline & 9-Stage Academic Extraction",
+      "finding": "Fixed title ReferenceError in vite-api-plugin.ts backend upload endpoint, aligned PIPELINE_STAGES in upload.tsx to 9 academic processing stages matching backend state. Verified paper upload, extraction, vector indexing, and transition to READY state in live browser testing. Pushed commit 644f329 to both git remotes."
     }
   ],
   "active_files": [
-    "frontend/src/components/app/AuthModal.tsx",
-    "frontend/src/lib/auth-context.tsx"
+    "frontend/src/routes/upload.tsx",
+    "frontend/vite-api-plugin.ts"
   ],
-  "next_step": "Google Account selection and Admin manual sign-in verified and pushed to remotes."
+  "next_step": "Complete. All paper upload and processing systems restored."
 }

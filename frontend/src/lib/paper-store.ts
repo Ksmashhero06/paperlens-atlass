@@ -290,8 +290,24 @@ export async function loadAllPapersWithSync(): Promise<SyncResult> {
   return { source: "local", papers: local, driveConnected: false };
 }
 
+import {
+  syncPaperToDrive,
+  savePaperAnalysisToDrive,
+  saveQuestionToDrive,
+  deletePaperFromDrive,
+} from "./google-drive";
+
+function getDriveAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return (
+    localStorage.getItem("paperatlas_drive_token") ||
+    localStorage.getItem("paperlens_access_token") ||
+    null
+  );
+}
+
 /**
- * Persist paper to Local Vault
+ * Persist paper to Local Vault and Google Drive AppData
  */
 export async function persistPaper(paper: AppDataPaper): Promise<{ driveSaved: boolean }> {
   const papers = getLocalPapers();
@@ -302,27 +318,127 @@ export async function persistPaper(paper: AppDataPaper): Promise<{ driveSaved: b
     papers.unshift(paper);
   }
   setLocalPapers(papers);
-  return { driveSaved: false };
+
+  let driveSaved = false;
+  const token = getDriveAccessToken();
+  if (token) {
+    try {
+      await syncPaperToDrive(
+        {
+          id: paper.id,
+          title: paper.title,
+          authors: paper.authors || ["Unknown Author"],
+          publicationYear: paper.publicationYear || 2026,
+          pageCount: paper.pageCount || 10,
+          fileName: paper.fileName || `${paper.id}.pdf`,
+          uploadedAt: paper.uploadedAt || new Date().toISOString(),
+          processedAt: paper.processedAt || new Date().toISOString(),
+          processingStatus: paper.processingStatus === "completed" ? "completed" : "processing",
+          summary: paper.summary || "",
+          researchObjective: paper.researchObjective,
+          keyContributions: paper.keyContributions,
+          methodology: paper.methodology,
+          dataset: paper.dataset,
+          results: paper.results,
+          limitations: paper.limitations,
+          keywords: paper.keywords,
+        },
+        token
+      );
+      driveSaved = true;
+    } catch (err) {
+      console.warn("Failed to sync paper to Google Drive AppData:", err);
+    }
+  }
+
+  return { driveSaved };
 }
 
 /**
- * Persist paper analysis to Local Vault
+ * Persist paper analysis to Local Vault and Google Drive AppData
  */
 export async function persistAnalysis(
   analysis: AppDataAnalysis
 ): Promise<{ driveSaved: boolean }> {
   setLocalAnalysis(analysis);
-  return { driveSaved: false };
+
+  let driveSaved = false;
+  const token = getDriveAccessToken();
+  if (token) {
+    try {
+      await savePaperAnalysisToDrive(
+        {
+          paperId: analysis.paperId,
+          summary: {
+            executive_summary: analysis.summary?.tldr || "",
+            problem_statement: analysis.summary?.problem || "",
+            objective: analysis.summary?.background || "",
+            methodology_summary: analysis.summary?.key_solution || "",
+            key_contributions: (analysis.claims || []).map((c) => c.claim_text),
+            dataset: analysis.dataset?.name || "",
+            experimental_setup: analysis.dataset?.splits || "",
+            key_results: analysis.results?.value || "",
+            limitations: (analysis.limitations || []).join("; "),
+            conclusion: analysis.summary?.significance || "",
+          },
+          claims: (analysis.claims || []).map((c) => ({
+            claim_id: c.claim_id,
+            claim_text: c.claim_text,
+            section: c.evidence_items?.[0]?.section || "Methodology",
+            page: c.evidence_items?.[0]?.page || 1,
+          })),
+          analyzedAt: analysis.analyzedAt || new Date().toISOString(),
+        },
+        token
+      );
+      driveSaved = true;
+    } catch (err) {
+      console.warn("Failed to sync analysis to Google Drive AppData:", err);
+    }
+  }
+
+  return { driveSaved };
 }
 
 /**
- * Persist Q&A item to Local Vault
+ * Persist Q&A item to Local Vault and Google Drive AppData
  */
 export async function persistQuestion(
   question: AppDataQuestionItem
 ): Promise<{ driveSaved: boolean }> {
   appendLocalQuestion(question);
-  return { driveSaved: false };
+
+  let driveSaved = false;
+  const token = getDriveAccessToken();
+  if (token) {
+    try {
+      await saveQuestionToDrive(
+        {
+          id: question.id,
+          paperId: question.paperId,
+          question: question.question,
+          answer: question.answer,
+          evidence: question.evidence,
+          page: question.pageNumber,
+          section: question.section,
+          supportScore: question.supportScore,
+          abstained: question.abstained,
+          sources: question.sources?.map((s: any) => ({
+            page: s.page_number || 1,
+            section: s.section_name || s.section_title || "Section 1",
+            text: s.snippet || s.text || "",
+          })),
+          timestamp: question.timestamp || new Date().toISOString(),
+        },
+        token
+      );
+      driveSaved = true;
+    } catch (err) {
+      console.warn("Failed to sync question to Google Drive AppData:", err);
+    }
+  }
+
+  return { driveSaved };
 }
 
 /**
@@ -335,14 +451,26 @@ export async function loadPaperQuestions(
 }
 
 /**
- * Delete paper from Local Vault
+ * Delete paper completely from Local Vault and Google Drive AppData
  */
 export async function deletePaperCompletely(
   paperId: string
 ): Promise<{ driveDeleted: boolean }> {
   const papers = getLocalPapers().filter((p) => p.id !== paperId);
   setLocalPapers(papers);
-  return { driveDeleted: false };
+
+  let driveDeleted = false;
+  const token = getDriveAccessToken();
+  if (token) {
+    try {
+      await deletePaperFromDrive(paperId, token);
+      driveDeleted = true;
+    } catch (err) {
+      console.warn("Failed to delete paper from Google Drive AppData:", err);
+    }
+  }
+
+  return { driveDeleted };
 }
 
 /**

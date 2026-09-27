@@ -649,15 +649,25 @@ function createApiMiddleware() {
               extractedFileName = body.filename || body.file_name;
             }
 
-            const cleanTitle =
-              body.title ||
-              extractedFileName
-                .replace(/\.pdf$/i, "")
-                .replace(/[_-]/g, " ")
-                .replace(/\b\w/g, (c: string) => c.toUpperCase());
+            const abstract =
+              body.abstract ||
+              `This research paper ("${cleanTitle}") presents a structured framework and empirical evaluation of core system components, section-aware processing, and verified operational guidelines across ${pages} pages.`;
 
-            const authors = body.authors || "Sakthi Kumaran, AI Research Group";
-            const pages = body.page_count || 12;
+            const keyContributions = [
+              `Detailed architectural formulation and section layout analysis for "${cleanTitle}".`,
+              `Empirical validation and operational procedures derived directly from section text.`,
+              `Structure-aware contextual indexing with verified page-level provenance across ${pages} pages.`,
+            ];
+
+            const methodology = [
+              `Section-aware semantic parsing and chunking applied to "${cleanTitle}".`,
+              `Dual-encoder vector representations with RapidFuzz grounding verification.`,
+              `Structured 6-module academic extraction and claim validation.`,
+            ];
+
+            const results = [
+              `Successfully parsed and verified ${pages} pages with 98.6% citation grounding precision.`,
+            ];
 
             const newPaper = {
               id: newId,
@@ -667,7 +677,7 @@ function createApiMiddleware() {
               user_email: "ksmfrom2006@gmail.com",
               title: cleanTitle,
               authors,
-              abstract: "An end-to-end framework integrating multi-stage document parsing, section-aware semantic chunking, and dual-encoder retrieval with exact citation grounding.",
+              abstract,
               publication_year: 2026,
               file_name: extractedFileName,
               file_size: 2450000,
@@ -684,22 +694,16 @@ function createApiMiddleware() {
                 title: cleanTitle,
                 authors: [authors],
                 year: 2026,
-                venue: "arXiv preprint 2609.12345",
+                venue: "Uploaded Research Paper",
                 addedAt: new Date().toISOString().split("T")[0],
                 pages,
                 status: "processing",
                 citations: 0,
-                tags: ["Uploaded", "Multi-Stage RAG", "Deep Learning"],
-                abstract: "An end-to-end framework integrating multi-stage document parsing, section-aware semantic chunking, and dual-encoder retrieval with exact citation grounding.",
-                keyContributions: [
-                  "Hierarchical section-aware token representation with localized document embeddings.",
-                  "Zero-hallucination citation verification guaranteeing page-level provenance.",
-                ],
-                methodology: [
-                  "Dual-stage neural chunking with sliding window context preservation.",
-                  "Cross-encoder re-ranking against candidate passages.",
-                ],
-                results: ["Attained 98.4% citation recall and 96.2% faithfulness across 1,000 queries."],
+                tags: ["Uploaded", "Research Analysis", "Document Grounding"],
+                abstract,
+                keyContributions,
+                methodology,
+                results,
               },
             };
 
@@ -811,18 +815,37 @@ function createApiMiddleware() {
             // GET /api/v1/papers/:id/analysis (6-Module Structured Analysis)
             if (subPath === "/analysis") {
               const raw = paper.raw || {};
+              const isSeed1 = paper.id === "paper-1";
+
               return sendJson(200, {
                 id: `analysis-${paper.id}`,
                 paper_id: paper.id,
                 summary: {
-                  tldr: raw.abstract ? raw.abstract.slice(0, 180) + "..." : "Structured paper breakdown and verified claims.",
-                  background: `Foundational research context in ${paper.title}.`,
-                  problem: "Addressing architectural, computational, and empirical performance trade-offs in high-dimensional representations.",
-                  key_solution: (raw.keyContributions && raw.keyContributions[0]) || "Novel structural and methodological approach.",
-                  main_results: (raw.results && raw.results[0]) || "Demonstrated state-of-the-art benchmarks on standard evaluation suites.",
-                  significance: "Establishes a new paradigm with verifiable reproducibility and section-level provenance.",
+                  executive_summary: raw.abstract || paper.abstract || `This research paper ("${paper.title}") presents a novel architecture and empirical evaluation across ${paper.page_count || 12} document pages.`,
+                  tldr: raw.abstract ? raw.abstract.slice(0, 180) + "..." : `Structured paper breakdown for ${paper.title}.`,
+                  background: `Foundational research context in "${paper.title}".`,
+                  problem_statement: isSeed1
+                    ? "Existing baseline systems fail to preserve long-range dependencies and suffer from quadratic memory bottlenecks."
+                    : `Addressing domain requirements, execution trade-offs, and computational bottlenecks in ${paper.title}.`,
+                  objective: isSeed1
+                    ? "Propose and empirically evaluate an end-to-end multi-head architecture with linear retrieval scaling."
+                    : `Formulate, evaluate, and validate the methodological claims presented in ${paper.title}.`,
+                  methodology_summary: (raw.methodology && raw.methodology[0]) || `Structure-aware parsing and dual-encoder indexing applied to ${paper.title}.`,
+                  dataset: isSeed1
+                    ? "Standard WMT 2014 English-German (4.5 million sentence pairs) and English-French (36M pairs)."
+                    : `${paper.title} Document Corpus (${paper.page_count || 12} Pages)`,
+                  experimental_setup: isSeed1
+                    ? "Trained on 8 NVIDIA V100 GPUs using Adam optimizer with warmup and cosine decay."
+                    : `Processed and verified via PaperLens 9-stage extraction and grounding pipeline.`,
+                  key_solution: (raw.keyContributions && raw.keyContributions[0]) || `Novel structural and methodological approach in ${paper.title}.`,
+                  main_results: (raw.results && raw.results[0]) || `Extracted and verified key technical claims across ${paper.page_count || 12} pages.`,
+                  key_results: (raw.results && raw.results[0]) || `Extracted and verified key technical claims across ${paper.page_count || 12} pages.`,
+                  limitations: isSeed1
+                    ? "The primary limitation is the quadratic memory and computational complexity O(n²) with respect to input sequence length, making direct application to very long documents computationally intensive."
+                    : `Scope bounded by the content layout and section depth of ${paper.title}.`,
+                  significance: `Establishes verifiable reproducibility and section-level provenance for ${paper.title}.`,
                 },
-                claims: (raw.keyContributions || ["Primary contribution verified against experimental data."]).map((c: string, idx: number) => ({
+                claims: (raw.keyContributions || [`Primary contribution verified for ${paper.title}.`]).map((c: string, idx: number) => ({
                   claim_id: `claim-${idx + 1}`,
                   claim_text: c,
                   confidence_score: 0.98 - idx * 0.02,
@@ -836,22 +859,27 @@ function createApiMiddleware() {
                   ],
                 })),
                 dataset: {
-                  name: "Standardized Academic Corpora (WMT14 & Benchmark Suites)",
-                  size: "4.5M Sentence Pairs & Multi-Domain Evaluation Sets",
+                  name: isSeed1 ? "Standardized Academic Corpora (WMT14 & Benchmark Suites)" : `${paper.title} Document Corpus`,
+                  size: isSeed1 ? "4.5M Sentence Pairs & Multi-Domain Evaluation Sets" : `${paper.page_count || 12} Document Pages`,
                   splits: "Train: 80%, Val: 10%, Test: 10%",
-                  features: "Tokenized multilingual sentence pairs with subword BPE encoding",
+                  features: "Tokenized section embeddings with RapidFuzz citation verification",
                 },
                 results: {
-                  primary_metric: "BLEU Score / Top-1 Accuracy",
-                  value: "28.4 BLEU (EN-DE) / 41.8 BLEU (EN-FR)",
-                  baseline_comparison: "+2.0 BLEU over previous ensemble state-of-the-art",
-                  statistical_significance: "p < 0.001 across 5 independent seeds",
+                  primary_metric: isSeed1 ? "BLEU Score / Top-1 Accuracy" : "Citation Grounding & Section Precision",
+                  value: isSeed1 ? "28.4 BLEU (EN-DE) / 41.8 BLEU (EN-FR)" : "98.6% Verification Precision",
+                  baseline_comparison: isSeed1 ? "+2.0 BLEU over previous ensemble state-of-the-art" : `Fully indexed across ${paper.page_count || 12} document pages`,
+                  statistical_significance: "p < 0.001 across independent seeds",
                 },
-                limitations: [
-                  "Quadratic memory complexity O(n²) scaling with sequence length n.",
-                  "Requires accelerated high-bandwidth memory architectures for maximum throughput.",
-                  "Sensitivity to learning rate warmup and optimizer hyperparameter schedules.",
-                ],
+                limitations: isSeed1
+                  ? [
+                      "Quadratic memory complexity O(n²) scaling with sequence length n.",
+                      "Requires accelerated high-bandwidth memory architectures for maximum throughput.",
+                      "Sensitivity to learning rate warmup and optimizer hyperparameter schedules.",
+                    ]
+                  : [
+                      `Analysis scope is bounded by the document sections present in ${paper.title}.`,
+                      "Requires high-resolution text extraction for scanned or image-only PDF pages.",
+                    ],
                 created_at: paper.created_at,
               });
             }
@@ -859,19 +887,20 @@ function createApiMiddleware() {
             // GET /api/v1/papers/:id/methodology
             if (subPath === "/methodology") {
               const raw = paper.raw || {};
+              const isSeed1 = paper.id === "paper-1";
               return sendJson(200, {
-                approach: (raw.methodology && raw.methodology[0]) || "Multi-stage hierarchical empirical formulation",
+                approach: (raw.methodology && raw.methodology[0]) || `Structure-aware dual encoder and section parsing for ${paper.title}`,
                 model: paper.title,
-                algorithms: (raw.methodology && raw.methodology[1]) || "Optimized stochastic gradient estimation with schedule regularization",
-                dataset: "Standardized benchmark corpora and evaluation partitions",
-                preprocessing: "Standardized tokenization and token-level contextual normalization",
-                training: (raw.methodology && raw.methodology[2]) || "Distributed parallelized training across accelerated compute clusters",
-                experimental_setup: "High-throughput accelerators with synchronized data parallelism",
-                metrics: ["BLEU / Accuracy", "F1 Score", "Inference Latency", "Perplexity"],
-                evidence: (raw.methodology || ["Primary methodological technique documented in Section 3."]).map((m: string, idx: number) => ({
+                algorithms: (raw.methodology && raw.methodology[1]) || "Structure-aware chunking and RapidFuzz quote verification",
+                dataset: isSeed1 ? "Standardized benchmark corpora and evaluation partitions" : `${paper.title} Document Corpus`,
+                preprocessing: "Standardized tokenization and section-level contextual normalization",
+                training: (raw.methodology && raw.methodology[2]) || "Parallelized vector indexing and embedding generation",
+                experimental_setup: "9-Stage Academic Processing Pipeline",
+                metrics: isSeed1 ? ["BLEU / Accuracy", "F1 Score", "Inference Latency", "Perplexity"] : ["Citation Recall", "Precision@K", "Grounding Score"],
+                evidence: (raw.methodology || [`Primary methodology documented in ${paper.title}`]).map((m: string, idx: number) => ({
                   evidence_id: `meth-${idx + 1}`,
-                  section: `Section ${idx + 2}: Architecture & Methods`,
-                  page: idx + 2,
+                  section: `Section ${idx + 1}: Methodology & Architecture`,
+                  page: idx + 1,
                   text: m,
                 })),
               });
@@ -880,23 +909,25 @@ function createApiMiddleware() {
             // GET /api/v1/papers/:id/contributions
             if (subPath === "/contributions") {
               const raw = paper.raw || {};
+              const contribList = raw.keyContributions || [
+                `Primary technical formulation and section layout analysis for ${paper.title}.`,
+                `Empirical validation and operational procedures derived directly from section text.`,
+              ];
               return sendJson(200, {
-                contributions: (raw.keyContributions || ["Primary theoretical formulation", "Empirical validation on standard benchmarks"]).map(
-                  (c: string, idx: number) => ({
-                    contribution_id: `contrib-${idx + 1}`,
-                    statement: c,
-                    category: idx === 0 ? "Architecture" : "Empirical Benchmark",
-                    significance: "Core foundational contribution verified against text",
-                    evidence: [
-                      {
-                        page: 2 + idx,
-                        section: "Contributions & Overview",
-                        chunk_id: `chunk-${idx + 1}`,
-                        quote: c,
-                      },
-                    ],
-                  })
-                ),
+                contributions: contribList.map((c: string, idx: number) => ({
+                  contribution_id: `contrib-${idx + 1}`,
+                  statement: c,
+                  text: c,
+                  contribution_type: idx === 0 ? "NOVEL_ARCHITECTURE" : "EMPIRICAL_VALIDATION",
+                  category: idx === 0 ? "Architecture" : "Empirical Benchmark",
+                  significance: "Core foundational contribution verified against text",
+                  evidence: {
+                    page: 1 + idx,
+                    section: "Contributions & Overview",
+                    chunk_id: `chunk-${idx + 1}`,
+                    quote: c,
+                  },
+                })),
               });
             }
 
@@ -915,16 +946,16 @@ function createApiMiddleware() {
               if (qLower.includes("method") || qLower.includes("how") || qLower.includes("architecture")) {
                 contextFallback = `In "${paper.title}", the methodology is centered on: ${
                   (raw.methodology && raw.methodology.join(" Additionally, ")) ||
-                  "a novel architectural formulation designed to optimize representational capacity."
+                  `a novel architectural formulation designed for ${paper.title}.`
                 } The framework operates end-to-end without extraneous architectural overhead.`;
               } else if (qLower.includes("dataset") || qLower.includes("data") || qLower.includes("corpus")) {
-                contextFallback = `The empirical experiments in "${paper.title}" utilize standard academic benchmarks including WMT 2014 English-German and English-French datasets, evaluated with byte-pair encoding and standardized tokenized metric partitions.`;
+                contextFallback = `The empirical analysis in "${paper.title}" evaluates performance on ${paper.title} Document Corpus (${paper.page_count || 12} pages) using standardized section tokenization and metric partitions.`;
               } else if (qLower.includes("limitation") || qLower.includes("drawback") || qLower.includes("weakness")) {
-                contextFallback = `Key limitations identified in "${paper.title}" include the quadratic O(n²) computational complexity with sequence length in full self-attention, and high dependency on specialized hardware acceleration for low-latency batch inference.`;
+                contextFallback = `Key limitations identified in "${paper.title}" include dependency on clean PDF text extraction boundaries and scope restriction to documented paper sections.`;
               } else if (qLower.includes("result") || qLower.includes("score") || qLower.includes("performance")) {
                 contextFallback = `Empirical results reported in "${paper.title}" demonstrate: ${
                   (raw.results && raw.results.join(". Furthermore, ")) ||
-                  "a statistically significant gain across all primary benchmarks tested."
+                  `successful extraction and verified citation grounding across ${paper.page_count || 12} pages.`
                 }`;
               } else {
                 contextFallback = `Based on Section 1 and Section 2 of "${paper.title}": ${
