@@ -51,15 +51,16 @@
       "finding": "Updated signOut in frontend/src/lib/auth-context.tsx to clear localStorage keys (paperatlas_researcher_profile, paperlens_access_token, paperlens_user), set isAuthenticated to false, and reset user to Guest Researcher. Verified live on http://localhost:3000/settings via browser subagent."
     },
     {
-      "step_number": 29,
-      "timestamp": "2026-09-28T01:50:00+05:30",
-      "action": "Restored Paper Upload Pipeline & 9-Stage Academic Extraction",
-      "finding": "Fixed title ReferenceError in vite-api-plugin.ts backend upload endpoint, aligned PIPELINE_STAGES in upload.tsx to 9 academic processing stages matching backend state. Verified paper upload, extraction, vector indexing, and transition to READY state in live browser testing. Pushed commit 644f329 to both git remotes."
+      "step_number": 30,
+      "timestamp": "2026-09-28T02:08:00+05:30",
+      "action": "Fixed Paper-Specific Extraction Rendering & Integrated Google Drive AppData Auto-Sync",
+      "finding": "Updated vite-api-plugin.ts and paper.$id.tsx to dynamically generate paper-specific summaries, datasets, results, and contributions for uploaded papers (eliminating hardcoded Attention Is All You Need / WMT 2014 placeholders). Connected persistPaper, persistAnalysis, persistQuestion, and deletePaperCompletely in paper-store.ts to auto-sync to user's Google Drive AppData folder (spaces=appDataFolder). Verified build (npm run build) and pushed commit 541fc44 to both remotes."
     }
   ],
   "active_files": [
-    "frontend/src/routes/upload.tsx",
+    "frontend/src/routes/paper.$id.tsx",
+    "frontend/src/lib/paper-store.ts",
     "frontend/vite-api-plugin.ts"
   ],
-  "next_step": "Complete. All paper upload and processing systems restored."
+  "next_step": "All paper upload analysis extraction and Google Drive AppData auto-sync completed."
 }

@@ -253,14 +253,42 @@ export interface SyncResult {
 }
 
 /**
- * Load all papers from local vault and backend
+ * Load all papers from local vault, Google Drive AppData, and API backend
  */
 export async function loadAllPapersWithSync(): Promise<SyncResult> {
   const local = getLocalPapers();
+  const mergedMap = new Map<string, AppDataPaper>();
 
+  // 1. Seed with local vault papers
+  for (const p of local) {
+    if (p && p.id) mergedMap.set(p.id, p);
+  }
+
+  let driveConnected = false;
+  const token = getDriveAccessToken();
+
+  // 2. Fetch user's papers from Google Drive AppData if authenticated
+  if (token) {
+    try {
+      const drivePapers = await loadPapersFromDrive(token);
+      if (drivePapers && Array.isArray(drivePapers) && drivePapers.length > 0) {
+        driveConnected = true;
+        for (const p of drivePapers) {
+          if (p && p.id) {
+            const existing = mergedMap.get(p.id);
+            mergedMap.set(p.id, { ...existing, ...p });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Could not sync papers from Google Drive AppData:", err);
+    }
+  }
+
+  // 3. Fetch papers from API backend server
   try {
     const apiPapers = await getApiPapers();
-    if (apiPapers && apiPapers.length > 0) {
+    if (apiPapers && Array.isArray(apiPapers) && apiPapers.length > 0) {
       const mappedApiPapers: AppDataPaper[] = apiPapers.map((ap) => ({
         id: ap.id,
         title: ap.title,
@@ -274,20 +302,29 @@ export async function loadAllPapersWithSync(): Promise<SyncResult> {
         summary: ap.abstract || "",
       }));
 
-      const mergedMap = new Map<string, AppDataPaper>();
-      for (const p of local) mergedMap.set(p.id, p);
       for (const p of mappedApiPapers) {
-        if (!mergedMap.has(p.id)) mergedMap.set(p.id, p);
+        if (!mergedMap.has(p.id)) {
+          mergedMap.set(p.id, p);
+        } else {
+          const existing = mergedMap.get(p.id)!;
+          if (existing.processingStatus !== p.processingStatus) {
+            existing.processingStatus = p.processingStatus;
+          }
+        }
       }
-      const combined = Array.from(mergedMap.values());
-      setLocalPapers(combined);
-      return { source: "backend", papers: combined, driveConnected: false };
     }
   } catch {
-    // API not reachable
+    // API backend optional fallback
   }
 
-  return { source: "local", papers: local, driveConnected: false };
+  const combined = Array.from(mergedMap.values());
+  setLocalPapers(combined);
+
+  return {
+    source: driveConnected ? "backend" : "local",
+    papers: combined,
+    driveConnected,
+  };
 }
 
 import {
