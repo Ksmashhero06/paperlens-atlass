@@ -8,6 +8,7 @@ export const isSupabaseConfigured = Boolean(
   rawSupabaseUrl &&
   rawSupabaseAnonKey &&
   !rawSupabaseUrl.includes("placeholder") &&
+  !rawSupabaseUrl.includes("wuacpjaxqjmmhpnyibdo") &&
   !rawSupabaseAnonKey.includes("placeholder")
 );
 

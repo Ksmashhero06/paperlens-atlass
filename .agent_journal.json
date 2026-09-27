@@ -1,6 +1,6 @@
 {
-  "current_objective": "Fixed signInWithGoogle handler in auth-context.tsx and verified Google Sign-In interaction live.",
-  "last_updated": "2026-09-28T00:29:30+05:30",
+  "current_objective": "Removed invalid dummy Supabase URL from frontend environment and hardened isSupabaseConfigured check to eliminate DNS NXDOMAIN popup errors.",
+  "last_updated": "2026-09-28T00:36:00+05:30",
   "steps_completed": [
     {
       "step_number": 20,
@@ -37,11 +37,18 @@
       "timestamp": "2026-09-28T00:29:30+05:30",
       "action": "Implemented signInWithGoogle in AuthContext",
       "finding": "Implemented signInWithGoogle, signInWithAccount, and reconnectDrive in frontend/src/lib/auth-context.tsx. Verified clicking 'Continue with Google' in AuthModal triggers authentication cleanly, displays toast, updates user state, and closes modal."
+    },
+    {
+      "step_number": 26,
+      "timestamp": "2026-09-28T00:36:00+05:30",
+      "action": "Eliminated Unreachable Supabase URL & DNS NXDOMAIN Popup Error",
+      "finding": "Removed invalid dummy URL wuacpjaxqjmmhpnyibdo.supabase.co from frontend/.env and frontend/.env.local. Hardened isSupabaseConfigured in frontend/src/lib/supabase.ts to prevent popup redirects to unresolvable domains. Verified via browser subagent automation."
     }
   ],
   "active_files": [
-    "frontend/src/lib/auth-context.tsx",
-    "frontend/src/components/app/AuthModal.tsx"
+    "frontend/.env",
+    "frontend/.env.local",
+    "frontend/src/lib/supabase.ts"
   ],
-  "next_step": "Google Sign In verified working live."
+  "next_step": "Fix verified live on http://localhost:3000/."
 }
