@@ -28,28 +28,18 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetToDefault: () => void;
   signInWithGoogle: (email?: string, name?: string) => Promise<void>;
-  signInWithAccount: (email: string, name: string) => Promise<void>;
+  signInWithAccount: (email: string, password?: string, name?: string) => Promise<void>;
   reconnectDrive: () => Promise<void>;
 }
-
-const DEFAULT_USER: LocalResearcherUser = {
-  id: "usr-kumaran",
-  name: "Kumaran Sathiyamoorthi",
-  email: "kumaran.6373707@gmail.com",
-  institution: "Computer Science & AI Institute",
-  specialty: "Document Synthesis & NLP",
-  role: "admin",
-  last_active: "Active Now",
-};
 
 const GUEST_USER: LocalResearcherUser = {
   id: "guest-researcher",
   name: "Guest Researcher",
   email: "",
-  institution: "Local Private Storage",
-  specialty: "Document Search & Q&A",
+  institution: "Local Research Vault",
+  specialty: "Document Search & Synthesis",
   role: "researcher",
-  last_active: "Signed Out",
+  last_active: "Active Now",
 };
 
 const LOCAL_USER_KEY = "paperatlas_researcher_profile";
@@ -57,8 +47,8 @@ const LOCAL_USER_KEY = "paperatlas_researcher_profile";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<LocalResearcherUser>(DEFAULT_USER);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [user, setUser] = useState<LocalResearcherUser>(GUEST_USER);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -67,12 +57,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
-          if (parsed && typeof parsed === "object") {
-            setUser({ ...DEFAULT_USER, ...parsed });
-            setIsAuthenticated(Boolean(parsed.email));
+          if (parsed && typeof parsed === "object" && parsed.email) {
+            setUser({ ...GUEST_USER, ...parsed });
+            setIsAuthenticated(true);
           }
         } catch {
-          // keep default
+          // keep default guest
         }
       }
     }
@@ -108,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut();
   }, [signOut]);
 
+  // Google Sign-In: defaults to USER (Researcher) privileges
   const signInWithGoogle = useCallback(async (customEmail?: string, customName?: string) => {
     setLoading(true);
     try {
@@ -117,26 +108,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const targetEmail = (customEmail || "kumaran.6373707@gmail.com").trim();
-      const targetName = customName || (targetEmail.includes("@") ? targetEmail.split("@")[0] : "Kumaran Sathiyamoorthi");
+      const targetEmail = (customEmail || "researcher@gmail.com").trim();
+      const targetName = customName || (targetEmail.includes("@") ? targetEmail.split("@")[0] : "Google Researcher");
       const cleanEmail = targetEmail.toLowerCase();
-      
-      const isTargetAdmin =
-        cleanEmail.includes("kumaran") ||
-        cleanEmail.includes("sathiyamoorthi") ||
-        cleanEmail.includes("sakthikumaran") ||
-        cleanEmail.includes("ksmfrom2006") ||
-        cleanEmail.includes("admin") ||
-        cleanEmail === "kumaran.6373707@gmail.com" ||
-        cleanEmail === "kkssathiyamoorthi@gmail.com";
 
+      // Google Sign-In accounts get USER / Researcher privileges as default
       const newUser: LocalResearcherUser = {
         id: "usr-" + Math.abs(cleanEmail.split("").reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0)).toString(36),
         name: targetName,
         email: targetEmail,
-        institution: "Computer Science & AI Institute",
-        specialty: "Document Synthesis & NLP",
-        role: isTargetAdmin ? "admin" : "researcher",
+        institution: "Academic Research Workspace",
+        specialty: "Document Synthesis & Evidence Q&A",
+        role: "researcher", // Default privilege for Google Sign-In
         last_active: "Active Now",
       };
 
@@ -146,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(newUser));
         localStorage.setItem("paperlens_user", JSON.stringify(newUser));
       }
-      toast.success(`Signed in as ${targetName} (${targetEmail})`);
+      toast.success(`Signed in with Google Account (${targetEmail}) as Researcher`);
     } catch (err: any) {
       toast.error(err.message || "Failed to sign in with Google.");
       throw err;
@@ -155,25 +138,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const signInWithAccount = useCallback(async (email: string, name: string) => {
-    return signInWithGoogle(email, name);
-  }, [signInWithGoogle]);
+  // Manual Sign In: checks for admin password Sakthi@2004 for admin privileges
+  const signInWithAccount = useCallback(async (email: string, password?: string, name?: string) => {
+    const cleanEmail = email.trim().toLowerCase();
+    const isTargetAdmin =
+      (cleanEmail === "kumaran.6373707@gmail.com" ||
+        cleanEmail === "kkssathiyamoorthi@gmail.com" ||
+        cleanEmail === "ksmfrom2006@gmail.com") &&
+      password === "Sakthi@2004";
+
+    const targetName = name || (cleanEmail.includes("@") ? cleanEmail.split("@")[0] : "Administrator");
+
+    const newUser: LocalResearcherUser = {
+      id: "usr-" + Math.abs(cleanEmail.split("").reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0)).toString(36),
+      name: targetName,
+      email: cleanEmail,
+      institution: "Computer Science & AI Institute",
+      specialty: "Document Synthesis & Platform Administration",
+      role: isTargetAdmin ? "admin" : "researcher",
+      last_active: "Active Now",
+    };
+
+    setUser(newUser);
+    setIsAuthenticated(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(newUser));
+      localStorage.setItem("paperlens_user", JSON.stringify(newUser));
+    }
+
+    if (isTargetAdmin) {
+      toast.success("Administrator session authenticated with full control panel access!");
+    } else {
+      toast.success(`Signed in as ${targetName}`);
+    }
+  }, []);
 
   const reconnectDrive = useCallback(async () => {
     toast.info("Google Drive AppData Storage is active.");
   }, []);
 
-  const cleanUserEmail = user?.email?.toLowerCase() || "";
-  const isUserAdmin =
-    isAuthenticated &&
-    (user?.role === "admin" ||
-      cleanUserEmail.includes("kumaran") ||
-      cleanUserEmail.includes("sathiyamoorthi") ||
-      cleanUserEmail.includes("sakthikumaran") ||
-      cleanUserEmail.includes("ksmfrom2006") ||
-      cleanUserEmail.includes("admin") ||
-      cleanUserEmail === "kumaran.6373707@gmail.com" ||
-      cleanUserEmail === "kkssathiyamoorthi@gmail.com");
+  const isUserAdmin = isAuthenticated && user?.role === "admin";
 
   return (
     <AuthContext.Provider

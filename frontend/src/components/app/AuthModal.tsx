@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { registerUser } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { syncSupabaseSessionWithBackend } from "@/lib/supabase";
 import {
   ShieldCheck,
   Mail,
@@ -21,6 +20,7 @@ import {
   EyeOff,
   Loader2,
   ChevronDown,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,12 +32,19 @@ interface AuthModalProps {
   onSuccess: (user: any) => void;
 }
 
+type View = "main" | "google-account-picker";
+
 export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
-  const { signInWithGoogle, user: currentAuthUser } = useAuth();
-  const [mode, setMode] = useState<"register" | "login">("login");
+  const { signInWithGoogle, signInWithAccount, user: currentAuthUser } = useAuth();
+  const [view, setView] = useState<View>("main");
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [showEmailForm, setShowEmailForm] = useState(false);
 
-  // Email form state
+  // Google Account Picker state
+  const [googleEmail, setGoogleEmail] = useState("");
+  const [googleName, setGoogleName] = useState("");
+
+  // Manual Email & Password form state (for Admin / Standard user)
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,7 +55,10 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   onSuccessRef.current = onSuccess;
 
   const resetAndClose = useCallback(() => {
+    setView("main");
     setShowEmailForm(false);
+    setGoogleEmail("");
+    setGoogleName("");
     setEmail("");
     setPassword("");
     setName("");
@@ -58,20 +68,29 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const resetAndCloseRef = useRef(resetAndClose);
   resetAndCloseRef.current = resetAndClose;
 
-  // Real Google Sign-In with Drive AppData authorization
-  const handleLiveGoogleSignIn = async () => {
+  // Google Sign-In: triggers Google Account Selection -> defaults to User / Researcher role
+  const handleGoogleAccountSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const finalEmail = googleEmail.trim();
+    if (!finalEmail) {
+      toast.error("Please select or enter a Google Email Address.");
+      return;
+    }
+    const finalName = googleName.trim() || (finalEmail.includes("@") ? finalEmail.split("@")[0] : "Google Researcher");
     setLoading(true);
     try {
-      await signInWithGoogle();
-      onSuccessRef.current(currentAuthUser);
+      await signInWithGoogle(finalEmail, finalName);
+      toast.success(`Signed in with Google Account: ${finalEmail} (User Privilege)`);
+      onSuccessRef.current({ id: "usr-google", email: finalEmail, name: finalName, role: "researcher" });
       resetAndCloseRef.current();
-    } catch {
-      // Error handled in auth-context with toast
+    } catch (err: any) {
+      toast.error(err.message || "Failed to sign in with Google.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Manual Email & Password Login: Admin login (kumaran.6373707@gmail.com + Sakthi@2004) or standard email login
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -87,17 +106,20 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         toast.success("Account created successfully!");
         onSuccessRef.current(res.user);
       } else {
-        const resp = await fetch(`${API_BASE}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        });
-        if (!resp.ok) throw new Error("Invalid email or password");
-        const data = await resp.json();
-        localStorage.setItem("paperlens_access_token", data.access_token);
-        localStorage.setItem("paperlens_user", JSON.stringify(data.user));
-        toast.success("Logged in successfully!");
-        onSuccessRef.current(data.user);
+        await signInWithAccount(email, password, name);
+        const isAdmin =
+          (email.toLowerCase() === "kumaran.6373707@gmail.com" ||
+            email.toLowerCase() === "kkssathiyamoorthi@gmail.com" ||
+            email.toLowerCase() === "ksmfrom2006@gmail.com") &&
+          password === "Sakthi@2004";
+
+        const loggedInUser = {
+          id: isAdmin ? "usr-admin-01" : "usr-manual",
+          name: name || (email.includes("@") ? email.split("@")[0] : "User"),
+          email,
+          role: isAdmin ? "admin" : "researcher",
+        };
+        onSuccessRef.current(loggedInUser);
       }
 
       resetAndCloseRef.current();
@@ -129,6 +151,121 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     </svg>
   );
 
+  // Subview: Google Account Selection
+  if (view === "google-account-picker") {
+    return (
+      <Dialog open={isOpen} onOpenChange={(open) => !open && resetAndClose()}>
+        <DialogContent className="sm:max-w-sm p-6">
+          <DialogHeader className="text-center space-y-1.5">
+            <div className="mx-auto mb-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              {googleIcon}
+            </div>
+            <DialogTitle className="text-center text-xl font-serif-editorial font-bold text-foreground">
+              Choose a Google Account
+            </DialogTitle>
+            <DialogDescription className="text-center text-xs text-muted-foreground leading-relaxed">
+              Sign in with Google for standard User (Researcher) privileges.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 pt-2">
+            {/* Quick account selection list */}
+            <div className="space-y-1.5 rounded-lg border border-border bg-muted/40 p-2">
+              <span className="text-[11px] font-semibold text-muted-foreground px-1">Select Google Account:</span>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  setGoogleEmail("scholar@university.edu");
+                  setGoogleName("University Scholar");
+                }}
+                className={`w-full flex items-center justify-between p-2 rounded-md text-left transition-colors cursor-pointer ${
+                  googleEmail === "scholar@university.edu" ? "bg-primary/10 border border-primary/30" : "hover:bg-muted"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="h-7 w-7 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center text-xs">
+                    S
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-foreground">University Scholar</div>
+                    <div className="text-[11px] text-muted-foreground">scholar@university.edu</div>
+                  </div>
+                </div>
+                <span className="text-[10px] text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border">User</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setGoogleEmail("kumaran.6373707@gmail.com");
+                  setGoogleName("Kumaran (Google User)");
+                }}
+                className={`w-full flex items-center justify-between p-2 rounded-md text-left transition-colors cursor-pointer ${
+                  googleEmail === "kumaran.6373707@gmail.com" ? "bg-primary/10 border border-primary/30" : "hover:bg-muted"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="h-7 w-7 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold flex items-center justify-center text-xs">
+                    K
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-foreground">Kumaran (Google Account)</div>
+                    <div className="text-[11px] text-muted-foreground">kumaran.6373707@gmail.com</div>
+                  </div>
+                </div>
+                <span className="text-[10px] text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border">User</span>
+              </button>
+            </div>
+
+            {/* Custom Google Email input */}
+            <form onSubmit={handleGoogleAccountSubmit} className="space-y-3 pt-1">
+              <div>
+                <Label className="text-[11px]">Or Enter Any Google Email Address</Label>
+                <div className="relative mt-1">
+                  <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    required
+                    placeholder="your-google-account@gmail.com"
+                    value={googleEmail}
+                    onChange={(e) => setGoogleEmail(e.target.value)}
+                    className="pl-8 text-xs"
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full h-10 flex items-center justify-center gap-2 text-xs font-semibold cursor-pointer"
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  `Sign In as ${googleEmail || "Google User"} (User Privilege)`
+                )}
+              </Button>
+
+              <p className="text-[10px] text-muted-foreground text-center leading-tight">
+                Google Sign-In always grants standard User privileges. Admin panel access requires Manual Sign-In with password <code className="text-primary font-mono">Sakthi@2004</code>.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setView("main")}
+                className="w-full text-center text-xs text-muted-foreground hover:text-foreground flex items-center justify-center gap-1 pt-1 cursor-pointer"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                <span>Back to main options</span>
+              </button>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && resetAndClose()}>
       <DialogContent className="sm:max-w-sm p-6">
@@ -140,27 +277,23 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             Sign in to PaperAtlas
           </DialogTitle>
           <DialogDescription className="text-center text-xs text-muted-foreground leading-relaxed">
-            Authenticate with your Google Account to access your private research workspace.
+            Select your Google Account for user workspace or sign in manually for Admin privileges.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-3">
-          {/* Main Action: Continue with Google */}
+          {/* Main Action: Continue with Google (Opens Google Account Picker) */}
           <Button
             type="button"
             disabled={loading}
-            onClick={handleLiveGoogleSignIn}
+            onClick={() => setView("google-account-picker")}
             className="w-full h-11 flex items-center justify-center gap-3 rounded-lg border border-border bg-background hover:bg-muted text-foreground text-sm font-semibold shadow-xs transition-all cursor-pointer"
           >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            ) : (
-              googleIcon
-            )}
+            {googleIcon}
             <span>Continue with Google</span>
           </Button>
 
-          {/* Collapsible Email Auth Option */}
+          {/* Collapsible Manual Email & Password Form (for Admin login with Sakthi@2004) */}
           <div className="pt-2 border-t border-border">
             {!showEmailForm ? (
               <button
@@ -168,14 +301,14 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 onClick={() => setShowEmailForm(true)}
                 className="flex w-full items-center justify-center gap-1.5 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
-                <span>Or continue with Email & Password</span>
+                <span>Manual Sign In (Admin Access)</span>
                 <ChevronDown className="h-3.5 w-3.5" />
               </button>
             ) : (
               <form onSubmit={handleEmailAuth} className="space-y-3 pt-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground">
-                    {mode === "register" ? "Create Account" : "Sign In with Email"}
+                    {mode === "register" ? "Create Account" : "Manual Sign In"}
                   </span>
                   <button
                     type="button"
@@ -224,7 +357,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                     <Input
                       type={showPassword ? "text" : "password"}
                       required
-                      placeholder="••••••••"
+                      placeholder="Sakthi@2004"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-8 pr-10 text-xs"
@@ -242,6 +375,9 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                       )}
                     </button>
                   </div>
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    Use <code className="text-primary font-mono font-bold">kumaran.6373707@gmail.com</code> + <code className="text-primary font-mono font-bold">Sakthi@2004</code> for Admin access.
+                  </p>
                 </div>
 
                 <div className="flex gap-2 pt-1">
