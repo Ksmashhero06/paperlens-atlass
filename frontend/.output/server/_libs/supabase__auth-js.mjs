@@ -1,8 +1,8 @@
 import { S as __rest } from "./@radix-ui/react-dialog+[...].mjs";
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/version.js
-var version = "2.117.2";
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/version.js
+var version = "2.117.0";
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/constants.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/constants.js
 /** Current session will be checked for refresh at this interval. */
 var AUTO_REFRESH_TICK_DURATION_MS = 3e4;
 var EXPIRY_MARGIN_MS = 3 * AUTO_REFRESH_TICK_DURATION_MS;
@@ -32,7 +32,7 @@ var BASE64URL_REGEX = /^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i;
 */
 var PKCE_FLOW_ID_PARAM = "sb_flow_id";
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/errors.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/errors.js
 /**
 * Base error thrown by Supabase Auth helpers.
 *
@@ -319,7 +319,7 @@ var AuthInvalidJwtError = class extends CustomAuthError {
 	}
 };
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/base64url.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/base64url.js
 /**
 * Avoid modifying this file. It's part of
 * https://github.com/supabase-community/base64url-js.  Submit all fixes on
@@ -523,7 +523,7 @@ function bytesToBase64URL(bytes) {
 	return result.join("");
 }
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/helpers.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/helpers.js
 function expiresAt(expiresIn) {
 	return Math.round(Date.now() / 1e3) + expiresIn;
 }
@@ -922,7 +922,7 @@ function deepClone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/fetch.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/fetch.js
 var _getErrorMessage = (err) => {
 	if (typeof err === "object" && err !== null) {
 		const e = err;
@@ -1082,14 +1082,14 @@ function hasSession(data) {
 	return !!data.access_token && !!data.refresh_token && !!data.expires_in;
 }
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/types.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/types.js
 var SIGN_OUT_SCOPES = [
 	"global",
 	"local",
 	"others"
 ];
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/GoTrueAdminApi.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/GoTrueAdminApi.js
 var GoTrueAdminApi = class {
 	/**
 	* Creates an admin API client that can be used to manage users and OAuth clients.
@@ -2236,7 +2236,7 @@ var GoTrueAdminApi = class {
 	}
 };
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/local-storage.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/local-storage.js
 /**
 * Returns a localStorage-like object that stores the key-value pairs in
 * memory.
@@ -2269,7 +2269,7 @@ var LockAcquireTimeoutError = class extends Error {
 	}
 };
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/polyfills.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/polyfills.js
 /**
 * https://mathiasbynens.be/notes/globalthis
 */
@@ -2289,7 +2289,7 @@ function polyfillGlobalThis() {
 	}
 }
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/web3/ethereum.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/web3/ethereum.js
 function getAddress(address) {
 	if (!/^0x[a-fA-F0-9]{40}$/.test(address)) throw new Error(`@supabase/auth-js: Address "${address}" is invalid.`);
 	return address.toLowerCase();
@@ -2330,7 +2330,7 @@ function createSiweMessage(parameters) {
 	return `${prefix}\n${suffix}`;
 }
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js
 /**
 * A custom Error used to return a more nuanced error detailing _why_ one of the eight documented
 * errors in the spec was raised after calling `navigator.credentials.create()` or
@@ -2521,7 +2521,7 @@ function identifyAuthenticationError({ error, options }) {
 	});
 }
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/lib/webauthn.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/lib/webauthn.js
 /**
 * WebAuthn abort service to manage ceremony cancellation.
 * Ensures only one WebAuthn ceremony is active at a time to prevent "operation already in progress" errors.
@@ -3128,7 +3128,7 @@ var WebAuthnApi = class {
 	}
 };
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/GoTrueClient.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/GoTrueClient.js
 polyfillGlobalThis();
 var DEFAULT_OPTIONS = {
 	url: GOTRUE_URL,
@@ -5540,17 +5540,31 @@ var GoTrueClient = class GoTrueClient {
 			};
 			const hasExpired = currentSession.expires_at ? currentSession.expires_at * 1e3 - Date.now() < EXPIRY_MARGIN_MS : false;
 			this._debug("#__loadSession()", `session has${hasExpired ? "" : " not"} expired`, "expires_at", currentSession.expires_at);
-			if (!hasExpired) return {
-				data: { session: await this._hydrateSessionUser(currentSession) },
-				error: null
-			};
+			if (!hasExpired) {
+				if (this.userStorage) {
+					const maybeUser = await getItemAsync(this.userStorage, this.storageKey + "-user");
+					if (maybeUser === null || maybeUser === void 0 ? void 0 : maybeUser.user) currentSession.user = maybeUser.user;
+					else currentSession.user = userNotAvailableProxy();
+				}
+				if (this.storage.isServer && currentSession.user && !currentSession.user.__isUserNotAvailableProxy) {
+					const suppressWarningRef = { value: this.suppressGetSessionWarning };
+					currentSession.user = insecureUserWarningProxy(currentSession.user, suppressWarningRef);
+					if (suppressWarningRef.value) this.suppressGetSessionWarning = true;
+				}
+				return {
+					data: { session: currentSession },
+					error: null
+				};
+			}
 			const { data: session, error } = await this._callRefreshToken(currentSession.refresh_token);
 			if (error) {
-				const stored = await getItemAsync(this.storage, this.storageKey);
-				if (stored && this._isValidSession(stored) && stored.expires_at && stored.expires_at * 1e3 > Date.now()) return this._returnResult({
-					data: { session: await this._hydrateSessionUser(stored) },
-					error: null
-				});
+				if (!!(currentSession.expires_at && currentSession.expires_at * 1e3 > Date.now())) {
+					const stillStored = await getItemAsync(this.storage, this.storageKey);
+					if (stillStored && stillStored.refresh_token === currentSession.refresh_token) return this._returnResult({
+						data: { session: currentSession },
+						error: null
+					});
+				}
 				return this._returnResult({
 					data: { session: null },
 					error
@@ -5563,24 +5577,6 @@ var GoTrueClient = class GoTrueClient {
 		} finally {
 			this._debug("#__loadSession()", "end");
 		}
-	}
-	/**
-	* Completes a session read back from storage so it matches what callers of
-	* `getSession()` expect: fills in `session.user` from `userStorage` when the
-	* client keeps the user in split storage, and wraps the user in the
-	* insecure-access warning proxy on the server.
-	*/
-	async _hydrateSessionUser(session) {
-		if (this.userStorage) {
-			const maybeUser = await getItemAsync(this.userStorage, this.storageKey + "-user");
-			session.user = (maybeUser === null || maybeUser === void 0 ? void 0 : maybeUser.user) ? maybeUser.user : userNotAvailableProxy();
-		}
-		if (this.storage.isServer && session.user && !session.user.__isUserNotAvailableProxy) {
-			const suppressWarningRef = { value: this.suppressGetSessionWarning };
-			session.user = insecureUserWarningProxy(session.user, suppressWarningRef);
-			if (suppressWarningRef.value) this.suppressGetSessionWarning = true;
-		}
-		return session;
 	}
 	/**
 	* Gets the current user details if there is an existing session. This method
@@ -8630,7 +8626,7 @@ var GoTrueClient = class GoTrueClient {
 };
 GoTrueClient.nextInstanceID = {};
 //#endregion
-//#region ../node_modules/@supabase/auth-js/dist/module/AuthClient.js
+//#region ../node_modules/.bun/@supabase+auth-js@2.117.0/node_modules/@supabase/auth-js/dist/module/AuthClient.js
 var AuthClient = GoTrueClient;
 //#endregion
 export { AuthClient as t };

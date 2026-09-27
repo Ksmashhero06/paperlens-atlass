@@ -1,5 +1,3 @@
-export type PaperStatus = "ready" | "processing" | "failed";
-
 export interface Paper {
   id: string;
   title: string;
@@ -8,180 +6,195 @@ export interface Paper {
   venue: string;
   addedAt: string;
   pages: number;
-  status: PaperStatus;
-  abstract: string;
+  status: "ready" | "processing" | "failed";
+  citations: number;
   tags: string[];
+  abstract: string;
   keyContributions: string[];
   methodology: string[];
   results: string[];
-  citations: number;
 }
 
 export const mockPapers: Paper[] = [
   {
-    id: "attention-is-all-you-need",
+    id: "paper-1",
     title: "Attention Is All You Need",
-    authors: ["Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones"],
+    authors: [
+      "Ashish Vaswani",
+      "Noam Shazeer",
+      "Niki Parmar",
+      "Jakob Uszkoreit",
+      "Llion Jones",
+      "Aidan N. Gomez",
+      "Łukasz Kaiser",
+      "Illia Polosukhin",
+    ],
     year: 2017,
-    venue: "NeurIPS",
-    addedAt: "2026-07-14",
+    venue: "NeurIPS 2017",
+    addedAt: "2026-09-10",
     pages: 15,
     status: "ready",
-    citations: 132480,
-    tags: ["Transformers", "NLP", "Attention"],
+    citations: 124800,
+    tags: ["Transformer", "Deep Learning", "NLP", "Self-Attention"],
     abstract:
-      "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks. We propose a new simple architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.",
+      "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.",
     keyContributions: [
-      "Introduces the Transformer, an architecture built entirely on self-attention.",
-      "Removes the need for recurrence and convolutions in sequence modeling.",
-      "Achieves state-of-the-art BLEU scores on WMT 2014 English-to-German and English-to-French translation.",
+      "Solely attention-based sequence transduction without recurrent or convolutional neural networks.",
+      "Multi-Head Attention mechanism allowing the model to jointly attend to information from different representation subspaces.",
+      "Scaled Dot-Product Attention with a scaling factor of 1/√d_k to prevent gradient vanishing into soft saturation regions.",
+      "Sinusoidal positional encodings to inject absolute and relative token positions into non-recurrent layers.",
     ],
     methodology: [
-      "Encoder-decoder stack with multi-head scaled dot-product attention.",
-      "Positional encodings injected via sinusoidal functions.",
-      "Trained with Adam, warmup schedule, label smoothing, and dropout.",
+      "Stacked self-attention and point-wise fully connected feed-forward layers for both encoder and decoder.",
+      "Residual connections around each sub-layer followed by layer normalization (Post-LN formulation).",
+      "Label smoothing with value ε_ls = 0.1 during training to improve BLEU metric and prevent overconfident predictions.",
     ],
     results: [
-      "28.4 BLEU on WMT 2014 EN-DE, a 2.0 BLEU improvement over prior best.",
-      "41.8 BLEU on WMT 2014 EN-FR after 3.5 days on eight P100 GPUs.",
+      "Achieved 28.4 BLEU on WMT 2014 English-to-German translation task, outperforming existing state-of-the-art models by over 2.0 BLEU.",
+      "Established a new single-model state-of-the-art BLEU score of 41.8 on WMT 2014 English-to-French after training for 3.5 days on 8 P100 GPUs.",
     ],
   },
   {
-    id: "bert",
-    title: "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
-    authors: ["Jacob Devlin", "Ming-Wei Chang", "Kenton Lee", "Kristina Toutanova"],
-    year: 2019,
-    venue: "NAACL",
-    addedAt: "2026-07-18",
-    pages: 16,
-    status: "ready",
-    citations: 98210,
-    tags: ["Pre-training", "NLP", "Language Models"],
-    abstract:
-      "We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers. BERT is designed to pre-train deep bidirectional representations from unlabeled text.",
-    keyContributions: [
-      "Masked language modeling objective enabling deep bidirectional pre-training.",
-      "Next-sentence prediction task capturing inter-sentence relationships.",
-      "Single fine-tuned model achieves state-of-the-art on 11 NLP tasks.",
+    id: "paper-2",
+    title: "LoRA: Low-Rank Adaptation of Large Language Models",
+    authors: [
+      "Edward J. Hu",
+      "Yelong Shen",
+      "Phillip Wallis",
+      "Zeyuan Allen-Zhu",
+      "Yuanzhi Li",
+      "Shean Wang",
+      "Lu Wang",
+      "Weizhu Chen",
     ],
-    methodology: [
-      "Pre-training on BooksCorpus (800M words) and English Wikipedia (2.5B words).",
-      "Two model sizes: BERT-Base (110M params) and BERT-Large (340M params).",
-      "Fine-tuning on downstream tasks with a lightweight task-specific head.",
-    ],
-    results: [
-      "GLUE benchmark: 80.5% (7.7% absolute improvement).",
-      "SQuAD v1.1 F1: 93.2 (1.5% improvement).",
-      "MultiNLI accuracy: 86.7% (4.6% improvement).",
-    ],
-  },
-  {
-    id: "resnet",
-    title: "Deep Residual Learning for Image Recognition",
-    authors: ["Kaiming He", "Xiangyu Zhang", "Shaoqing Ren", "Jian Sun"],
-    year: 2016,
-    venue: "CVPR",
-    addedAt: "2026-07-20",
-    pages: 12,
-    status: "ready",
-    citations: 214300,
-    tags: ["Computer Vision", "CNN", "Residual Networks"],
-    abstract:
-      "Deeper neural networks are more difficult to train. We present a residual learning framework to ease the training of networks that are substantially deeper than those used previously.",
-    keyContributions: [
-      "Introduces residual connections that let layers learn identity mappings.",
-      "Enables training of networks with 152+ layers without degradation.",
-      "Won 1st place on ILSVRC 2015 classification, detection, and localization.",
-    ],
-    methodology: [
-      "Building block: two 3x3 convolutions with an identity shortcut connection.",
-      "Bottleneck variant for deeper networks using 1x1-3x3-1x1 convolutions.",
-      "Trained with SGD, batch normalization, and standard ImageNet augmentation.",
-    ],
-    results: [
-      "ImageNet top-5 error: 3.57% (ensemble).",
-      "COCO detection improved by 28% relative to the previous best.",
-    ],
-  },
-  {
-    id: "clip",
-    title: "Learning Transferable Visual Models From Natural Language Supervision",
-    authors: ["Alec Radford", "Jong Wook Kim", "Chris Hallacy", "et al."],
     year: 2021,
-    venue: "ICML",
-    addedAt: "2026-07-22",
-    pages: 48,
-    status: "processing",
-    citations: 18420,
-    tags: ["Multimodal", "Vision-Language", "Contrastive"],
+    venue: "ICLR 2022",
+    addedAt: "2026-09-14",
+    pages: 14,
+    status: "ready",
+    citations: 18900,
+    tags: ["Fine-Tuning", "Parameter-Efficient", "LLM", "Optimization"],
     abstract:
-      "We demonstrate that contrastive pre-training on 400M image–text pairs learns transferable visual representations without task-specific supervision.",
+      "An important paradigm of natural language processing consists of large-scale pre-training on general domain data and adaptation to specific tasks. However, full fine-tuning of multi-billion parameter models becomes prohibitively expensive. We propose Low-Rank Adaptation (LoRA), which freezes pre-trained model weights and injects trainable rank decomposition matrices into each layer of the Transformer architecture.",
     keyContributions: [
-      "Introduces CLIP, contrastive image-text pre-training at scale.",
-      "Enables zero-shot transfer across a wide range of vision benchmarks.",
+      "Parameter-efficient tuning freezing pre-trained weights W_0 while learning low-rank matrix pairs B and A.",
+      "Zero inference latency overhead by folding adapter matrices ΔW = BA back into W_0 during deployment.",
+      "Memory requirement reductions up to 3x on VRAM during training and checkpoint storage size reductions by 10,000x.",
     ],
     methodology: [
-      "Joint image-text embedding trained with contrastive loss.",
-      "Large-scale dataset of 400M image-caption pairs from the web.",
+      "Decomposes dense weight updates ΔW into low-rank matrices B ∈ R^{d×r} and A ∈ R^{r×k} where intrinsic rank r ≪ min(d, k).",
+      "Applies Gaussian random initialization to matrix A and zero initialization to matrix B so ΔW = 0 at start of adaptation.",
+      "Scales adapter contribution by α/r where α is a constant hyperparameter.",
     ],
-    results: ["Zero-shot ImageNet accuracy comparable to fully supervised ResNet-50."],
+    results: [
+      "Matches or exceeds full fine-tuning performance on GPT-3 175B with only 0.01% trainable parameters.",
+      "Demonstrates higher training throughput and eliminates checkpoint switching latency on shared multi-tenant clusters.",
+    ],
   },
   {
-    id: "gpt3",
-    title: "Language Models are Few-Shot Learners",
-    authors: ["Tom B. Brown", "Benjamin Mann", "Nick Ryder", "Melanie Subbiah"],
+    id: "paper-3",
+    title: "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+    authors: [
+      "Patrick Lewis",
+      "Ethan Perez",
+      "Aleksandra Piktus",
+      "Fabio Petroni",
+      "Vladimir Karpukhin",
+      "Naman Goyal",
+      "Heinrich Küttler",
+      "Mike Lewis",
+      "Wen-tau Yih",
+      "Tim Rocktäschel",
+      "Sebastian Riedel",
+      "Douwe Kiela",
+    ],
     year: 2020,
-    venue: "NeurIPS",
-    addedAt: "2026-07-10",
-    pages: 75,
+    venue: "NeurIPS 2020",
+    addedAt: "2026-09-17",
+    pages: 19,
     status: "ready",
-    citations: 42100,
-    tags: ["Language Models", "Few-Shot", "NLP"],
+    citations: 24300,
+    tags: ["RAG", "Dense Retrieval", "Hallucination Reduction", "Knowledge Base"],
     abstract:
-      "We train GPT-3, an autoregressive language model with 175 billion parameters, and test its performance in the few-shot setting across dozens of NLP datasets.",
+      "Large pre-trained language models have been shown to store vast amounts of factual knowledge in their parameters, but their ability to access and precisely manipulate knowledge is still limited. We explore general-purpose fine-tuning recipes for Retrieval-Augmented Generation (RAG) — models which combine pre-trained parametric and non-parametric memory for language generation.",
     keyContributions: [
-      "Demonstrates strong few-shot learning at 175B parameters.",
-      "Removes the need for task-specific fine-tuning on many benchmarks.",
+      "Hybrid parametric and non-parametric architecture combining dense passage retrieval with seq2seq generation.",
+      "Formulation of both RAG-Sequence and RAG-Token probability distributions over retrieved document sets.",
+      "End-to-end differentiability allowing the dense retriever and seq2seq generator to be fine-tuned jointly.",
     ],
     methodology: [
-      "Autoregressive transformer trained on Common Crawl, WebText2, books, and Wikipedia.",
-      "In-context learning via prompts with zero, one, or few examples.",
+      "Dense Passage Retrieval (DPR) utilizing dual BERT encoders for query and document representations.",
+      "BART-large pre-trained sequence-to-sequence model as the parametric generator.",
+      "Marginalization over top-k retrieved documents (k=5 to 10) during sequence generation.",
     ],
-    results: ["Competitive with fine-tuned models on translation, QA, and cloze tasks."],
+    results: [
+      "Sets new state-of-the-art results on open-domain QA benchmarks including Natural Questions, TriviaQA, and WebQuestions.",
+      "Generates significantly more specific, diverse, and factual text than parametric-only seq2seq baselines.",
+    ],
   },
   {
-    id: "diffusion-beats-gans",
-    title: "Diffusion Models Beat GANs on Image Synthesis",
-    authors: ["Prafulla Dhariwal", "Alex Nichol"],
-    year: 2021,
-    venue: "NeurIPS",
-    addedAt: "2026-07-08",
-    pages: 44,
-    status: "failed",
-    citations: 6100,
-    tags: ["Generative", "Diffusion", "Computer Vision"],
+    id: "paper-4",
+    title: "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+    authors: [
+      "DeepSeek-AI",
+      "Daya Guo",
+      "Dejian Yang",
+      "Haowei Zhang",
+      "Junxiao Song",
+      "Ruoyu Zhang",
+      "Runxin Xu",
+      "Qihao Zhu",
+    ],
+    year: 2025,
+    venue: "arXiv preprint 2501.12948",
+    addedAt: "2026-09-19",
+    pages: 28,
+    status: "ready",
+    citations: 6200,
+    tags: ["Reasoning", "Reinforcement Learning", "Chain-of-Thought", "DeepSeek"],
     abstract:
-      "We show that diffusion models can achieve image sample quality superior to state-of-the-art generative adversarial networks through classifier guidance.",
+      "We introduce our first-generation reasoning models, DeepSeek-R1-Zero and DeepSeek-R1. DeepSeek-R1-Zero, a model trained via large-scale reinforcement learning (RL) without supervised fine-tuning (SFT) as a preliminary step, demonstrates remarkable reasoning capabilities. Through RL, DeepSeek-R1-Zero naturally emerges with numerous powerful reasoning behaviors including self-verification, reflection, and generating long chains of thought.",
     keyContributions: [
-      "Introduces classifier guidance to trade off diversity for fidelity.",
-      "Achieves state-of-the-art FID on ImageNet at multiple resolutions.",
+      "Demonstration that pure reinforcement learning without initial supervised fine-tuning induces emergent reasoning.",
+      "Multi-stage pipeline incorporating cold-start data, reasoning-oriented RL, rejection sampling, and broad-domain RL.",
+      "Distillation of reasoning capabilities from DeepSeek-R1 into smaller dense models (1.5B, 7B, 14B, 32B).",
     ],
     methodology: [
-      "Improved architecture with attention at multiple resolutions.",
-      "Classifier guidance using gradients from a noise-aware classifier.",
+      "Group Relative Policy Optimization (GRPO) omitting the critic model to reduce training memory footprint.",
+      "Rule-based reward system rewarding accuracy (e.g., LeetCode/math answers) and formatting (thinking tags).",
+      "Strict avoidance of neural reward models during early RL to prevent reward hacking.",
     ],
-    results: ["FID of 2.97 on ImageNet 128x128, surpassing BigGAN-deep."],
+    results: [
+      "Achieved 79.8% Pass@1 on AIME 2024 and 97.3% on MATH-500, competitive with OpenAI o1.",
+      "Distilled DeepSeek-R1-32B outperforms open-source baselines and achieves superior inference cost efficiency.",
+    ],
+  },
+  {
+    id: "paper-5",
+    title: "FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning",
+    authors: ["Tri Dao"],
+    year: 2023,
+    venue: "ICLR 2024",
+    addedAt: "2026-09-20",
+    pages: 14,
+    status: "processing",
+    citations: 3400,
+    tags: ["CUDA", "Attention Optimization", "GPU Kernel", "Hardware-Aware"],
+    abstract:
+      "FlashAttention is an exact attention algorithm that reduces memory reads/writes between GPU HBM and SRAM. We present FlashAttention-2, which yields a 2x speedup over FlashAttention by tweaking the algorithm to reduce non-matmul FLOPs, parallelizing the forward and backward passes across sequence length, and partitioning work across warps.",
+    keyContributions: [
+      "Algorithmic tweaks to reduce non-matrix-multiplication FLOPs by eliminating unnecessary scaling factor recomputations.",
+      "Improved parallelism across sequence length dimensions in addition to batch size and number of heads.",
+      "Work partitioning between warps within a thread block that maximizes Tensor Core utilization.",
+    ],
+    methodology: [
+      "Online softmax computation with running maximum statistics maintained in fast SRAM registers.",
+      "Optimized warp-level matrix multiply-accumulate (MMA) instructions.",
+      "Split forward and backward kernel loops minimizing synchronization barriers.",
+    ],
+    results: [
+      "Reaches up to 73% of theoretical peak GPU FLOPs on A100 GPUs (up from 35-50% in original FlashAttention).",
+      "Achieves 2x faster end-to-end wall-clock training throughput for 8k-32k sequence context windows.",
+    ],
   },
 ];
-
-export const recentActivity = [
-  { id: "a1", kind: "upload", title: "Uploaded 'Attention Is All You Need'", when: "2h ago" },
-  { id: "a2", kind: "question", title: "Asked: What is the attention mechanism?", when: "3h ago" },
-  { id: "a3", kind: "summary", title: "Generated summary for 'BERT'", when: "yesterday" },
-  { id: "a4", kind: "upload", title: "Uploaded 'Deep Residual Learning'", when: "2d ago" },
-  { id: "a5", kind: "question", title: "Asked: How does BERT differ from GPT?", when: "3d ago" },
-];
-
-export function getPaper(id: string): Paper | undefined {
-  return mockPapers.find((p) => p.id === id);
-}

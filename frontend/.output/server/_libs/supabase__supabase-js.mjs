@@ -1,9 +1,9 @@
-import { t as RealtimeClient } from "./supabase__realtime-js+unenv.mjs";
 import { t as FunctionsClient } from "./supabase__functions-js.mjs";
 import { t as PostgrestClient } from "./supabase__postgrest-js.mjs";
+import { t as RealtimeClient } from "./supabase__realtime-js.mjs";
 import { t as StorageClient } from "./@supabase/storage-js+[...].mjs";
 import { t as AuthClient } from "./supabase__auth-js.mjs";
-//#region ../node_modules/@supabase/supabase-js/dist/tracingRegistry.mjs
+//#region ../node_modules/.bun/@supabase+supabase-js@2.117.0/node_modules/@supabase/supabase-js/dist/tracingRegistry.mjs
 var EXTRACTOR_KEY = Symbol.for("@supabase/supabase-js.traceContextExtractor");
 /**
 * The currently registered trace context extractor, if any.
@@ -12,8 +12,8 @@ function getTraceContextExtractor() {
 	return globalThis[EXTRACTOR_KEY];
 }
 //#endregion
-//#region ../node_modules/@supabase/supabase-js/dist/index.mjs
-var version = "2.117.2";
+//#region ../node_modules/.bun/@supabase+supabase-js@2.117.0/node_modules/@supabase/supabase-js/dist/index.mjs
+var version = "2.117.0";
 var JS_ENV = "";
 var JS_RUNTIME_VERSION;
 if (typeof Deno !== "undefined") {

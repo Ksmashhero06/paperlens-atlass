@@ -1,20 +1,20 @@
 {
-  "current_objective": "Configured user's Google OAuth Client ID in environment and restarted development server.",
-  "last_updated": "2026-09-27T23:31:20+05:30",
+  "current_objective": "Resolved 'Failed to fetch' error by registering paperlensApiPlugin in vite.config.ts and configuring relative /api/v1 API base URL.",
+  "last_updated": "2026-09-27T23:50:50+05:30",
   "steps_completed": [
-    {
-      "step_number": 18,
-      "timestamp": "2026-09-27T23:28:45+05:30",
-      "action": "Diagnosed Google OAuth Error 401 invalid_client",
-      "finding": "Identified missing VITE_GOOGLE_CLIENT_ID environment variable causing fallback to sample dummy ID. Added VITE_GOOGLE_CLIENT_ID to env templates and added explicit warning toast in AuthModal.tsx."
-    },
     {
       "step_number": 19,
       "timestamp": "2026-09-27T23:31:20+05:30",
       "action": "Configured User Google Client ID",
       "finding": "Updated frontend/.env and frontend/.env.local with user Client ID 81960374099-s5ldql41nei82j6ea23vgn27pvdhnvpr.apps.googleusercontent.com, restarted dev server on http://localhost:8080/, and verified 200 OK rendering."
+    },
+    {
+      "step_number": 20,
+      "timestamp": "2026-09-27T23:50:50+05:30",
+      "action": "Fixed 'Failed to fetch' API Plugin Error",
+      "finding": "Registered paperlensApiPlugin in frontend/vite.config.ts, configured relative /api/v1 base URL, updated isAdmin checks to include kkssathiyamoorthi@gmail.com, verified POST /api/v1/auth/register returning 200 OK token, and pushed commit b760a77 to both remotes."
     }
   ],
   "active_files": [],
-  "next_step": "OAuth client configured and live."
+  "next_step": "API plugin registered and live."
 }

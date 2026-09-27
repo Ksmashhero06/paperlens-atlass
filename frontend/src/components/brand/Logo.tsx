@@ -1,19 +1,22 @@
-export function Logo({ collapsed = false }: { collapsed?: boolean }) {
+import { Link } from "@tanstack/react-router";
+import { BookOpen } from "lucide-react";
+
+export function Logo({ className = "" }: { className?: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <img
-        src="/paperlens-logo.svg"
-        alt="PaperLens Logo"
-        width="28"
-        height="28"
-        className="shrink-0"
-        aria-hidden="true"
-      />
-      {!collapsed && (
-        <span className="font-serif-editorial text-[1.05rem] font-semibold tracking-tight text-foreground">
-          Paper<span className="text-primary">Lens</span>
+    <Link to="/dashboard" className={`flex items-center gap-2.5 font-sans ${className}`}>
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
+        <BookOpen className="h-4.5 w-4.5" />
+      </div>
+      <div className="flex flex-col">
+        <span className="font-serif text-lg font-bold leading-none tracking-tight text-foreground">
+          PaperAtlas
         </span>
-      )}
-    </div>
+        <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mt-0.5">
+          Research Vault
+        </span>
+      </div>
+    </Link>
   );
 }
+
+export default Logo;
